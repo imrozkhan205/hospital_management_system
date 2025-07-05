@@ -1,11 +1,13 @@
-import pool from '../config/db.js';
+import pool from "../config/db.js";
 
 export const getDoctors = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM doctors');
+    const [rows] = await pool.query("SELECT * FROM doctors");
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching doctors', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching doctors", error: err.message });
   }
 };
 
@@ -20,7 +22,7 @@ export const createDoctor = async (req, res) => {
     license_number,
     department_id,
     consultation_fee,
-    experience_years
+    experience_years,
   } = req.body;
 
   try {
@@ -38,13 +40,17 @@ export const createDoctor = async (req, res) => {
         license_number,
         department_id,
         consultation_fee,
-        experience_years
+        experience_years,
       ]
     );
 
-    res.status(201).json({ message: 'Doctor created', doctor_id: result.insertId });
+    res
+      .status(201)
+      .json({ message: "Doctor created", doctor_id: result.insertId });
   } catch (err) {
-    res.status(500).json({ message: 'Error creating doctor', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error creating doctor", error: err.message });
   }
 };
 
@@ -52,14 +58,65 @@ export const deleteDoctor = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM doctors WHERE doctor_id = ?', [id]);
+    const [result] = await pool.query(
+      "DELETE FROM doctors WHERE doctor_id = ?",
+      [id]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Doctor not found' });
+      return res.status(404).json({ message: "Doctor not found" });
     }
 
-    res.json({ message: 'Doctor deleted successfully' });
+    res.json({ message: "Doctor deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting doctor', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error deleting doctor", error: error.message });
+  }
+};
+
+export const updateDoctor = async (req, res) => {
+  const { id } = req.params;
+  const {
+    phone,
+    email,
+    specialization,
+    license_number,
+    department_id,
+    consultation_fee,
+    experience_years,
+  } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE doctors SET 
+    employee_id,
+        
+        phone=?,
+        email=?,
+        specialization=?,
+        license_number=?,
+        department_id=?,
+        consultation_fee=?,
+        experience_years=?,
+    `[
+        (phone,
+        email,
+        specialization,
+        department_id,
+        consultation_fee,
+        experience_years,
+        id)
+      ]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    res.json({ message: "Doctor updates successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating doctor", error: error.message });
   }
 };
