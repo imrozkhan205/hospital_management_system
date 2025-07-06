@@ -102,6 +102,7 @@ export const updateDoctor = async (req, res) => {
         (phone,
         email,
         specialization,
+        license_number,
         department_id,
         consultation_fee,
         experience_years,
