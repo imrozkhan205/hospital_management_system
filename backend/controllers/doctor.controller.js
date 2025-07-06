@@ -86,27 +86,27 @@ export const updateDoctor = async (req, res) => {
     consultation_fee,
     experience_years,
   } = req.body;
+
   try {
-    const result = await pool.query(
+    const [result] = await pool.query(
       `UPDATE doctors SET 
-    employee_id,
-        
-        phone=?,
-        email=?,
-        specialization=?,
-        license_number=?,
-        department_id=?,
-        consultation_fee=?,
-        experience_years=?,
-    `[
-        (phone,
+        phone = ?,
+        email = ?,
+        specialization = ?,
+        license_number = ?,
+        department_id = ?,
+        consultation_fee = ?,
+        experience_years = ?
+      WHERE doctor_id = ?`,
+      [
+        phone,
         email,
         specialization,
         license_number,
         department_id,
         consultation_fee,
         experience_years,
-        id)
+        id,
       ]
     );
 
@@ -114,10 +114,8 @@ export const updateDoctor = async (req, res) => {
       return res.status(404).json({ message: "Doctor not found" });
     }
 
-    res.json({ message: "Doctor updates successfully" });
+    res.json({ message: "Doctor updated successfully" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating doctor", error: error.message });
+    res.status(500).json({ message: "Error updating doctor", error: error.message });
   }
 };
