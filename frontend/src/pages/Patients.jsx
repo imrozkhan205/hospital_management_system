@@ -1,23 +1,38 @@
 import { useEffect, useState } from 'react';
 import { axiosInstance } from '../lib/axios';
-import { User } from 'lucide-react';
+import { User, UserPlus, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Patients = () => {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const res = await axiosInstance.get('/patients');
-        setPatients(res.data);
-      } catch (error) {
-        console.error('Error fetching patients:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPatients = async () => {
+    try {
+      const res = await axiosInstance.get('/patients');
+      setPatients(res.data);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handleDelete = async (id) => {
+    const confirm = window.confirm('Are you sure you want to delete this patient?');
+    if (!confirm) return;
+
+    try {
+      await axiosInstance.delete(`/patients/${id}`);
+      toast.success('Patient deleted');
+      setPatients((prev) => prev.filter((p) => p.patient_id !== id));
+    } catch (err) {
+      toast.error('Failed to delete patient');
+    }
+  };
+
+  useEffect(() => {
     fetchPatients();
   }, []);
 
@@ -29,6 +44,10 @@ const Patients = () => {
           <User className="text-purple-600" size={24} />
           Patients
         </h1>
+        <Link to='/patients/add' className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow">
+          <UserPlus className="mr-2" size={18} />
+          Add Patient
+        </Link>
       </div>
 
       {/* Summary Card */}
@@ -56,6 +75,7 @@ const Patients = () => {
                 <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Insurance</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -76,6 +96,14 @@ const Patients = () => {
                   <td className="px-4 py-3">{patient.phone}</td>
                   <td className="px-4 py-3">{patient.email}</td>
                   <td className="px-4 py-3">{patient.insurance_provider}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => handleDelete(patient.patient_id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
