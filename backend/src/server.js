@@ -7,6 +7,8 @@ import patientRoutes from '../routes/patient.route.js'
 import appointmentRoutes from '../routes/appointment.route.js'
 import departmentroutes from '../routes/department.route.js'
 import dashboardRoutes from '../routes/dashboard.route.js'
+import medicalRecordsRoutes from '../routes/medicalRecord.route.js'
+
 dotenv.config();
 const app = express()
 app.use(cors());
@@ -18,6 +20,7 @@ app.use('/api/patients', patientRoutes)
 app.use('/api/appointments', appointmentRoutes)
 app.use('/api/departments', departmentroutes)
 app.use('/dashboard', dashboardRoutes)
+app.use('/api/medical-records', medicalRecordsRoutes)
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

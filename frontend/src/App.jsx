@@ -11,7 +11,7 @@ import Departments from './pages/Departments';
 import MedicalRecords from './pages/MedicalRecords';
   import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
-
+import AddAppointment from './pages/AddAppointment'
 import { axiosInstance } from './lib/axios';
 import AddDoctor from './pages/AddDoctor';
 import AddPatient from './pages/AddPatient';
@@ -71,6 +71,7 @@ function App() {
                 <Route path="*" element={<Navigate to="/dashboard" />} />
                 <Route path="/doctors/add" element={<AddDoctor />} />
                 <Route path="/patients/add" element={<AddPatient/>}  />
+                <Route path='/appointments/add' element={<AddAppointment />} />
 
               </Routes>
             </main>
