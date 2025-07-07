@@ -13,6 +13,7 @@ import MedicalRecords from './pages/MedicalRecords';
 import Navbar from './components/layout/Navbar';
 
 import { axiosInstance } from './lib/axios';
+import AddDoctor from './pages/AddDoctor';
 
 function App() {
   const [authUser, setAuthUser] = useState(null);
@@ -67,6 +68,8 @@ function App() {
                 <Route path="/departments" element={<Departments />} />
                 <Route path="/medical-records" element={<MedicalRecords />} />
                 <Route path="*" element={<Navigate to="/dashboard" />} />
+                <Route path="/doctors/add" element={<AddDoctor />} />
+
               </Routes>
             </main>
           </div>

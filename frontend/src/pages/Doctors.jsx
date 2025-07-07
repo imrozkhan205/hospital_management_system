@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../lib/axios";
-import { Trash2, UserPlus } from "lucide-react";
+import { Trash2, UserPlus, Stethoscope } from "lucide-react";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
@@ -36,14 +37,27 @@ const Doctors = () => {
 
   return (
     <div className="p-6">
+      {/* Header & Actions */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Doctors</h1>
-        <button className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow">
-          <UserPlus className="mr-2" size={18} />
-          Add Doctor
-        </button>
+        <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+          <Stethoscope className="text-purple-600" size={24} />
+          Doctors
+        </h1>
+        <Link to='/doctors/add' className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow">
+        <UserPlus className="mr-2" size={18} />
+        Add doctor
+        </Link>
       </div>
 
+      {/* Summary Card */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white border rounded-xl shadow-sm p-6 text-center">
+          <p className="text-gray-500 font-medium">Total Doctors</p>
+          <p className="text-3xl font-bold text-purple-600">{doctors.length}</p>
+        </div>
+      </div>
+
+      {/* Table */}
       {loading ? (
         <div className="text-center text-gray-600">Loading doctors...</div>
       ) : doctors.length === 0 ? (
@@ -66,7 +80,9 @@ const Doctors = () => {
               {doctors.map((doc) => (
                 <tr key={doc.doctor_id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3">{doc.employee_id}</td>
-                  <td className="px-4 py-3">{doc.first_name} {doc.last_name}</td>
+                  <td className="px-4 py-3">
+                    {doc.first_name} {doc.last_name}
+                  </td>
                   <td className="px-4 py-3">{doc.email}</td>
                   <td className="px-4 py-3">{doc.phone}</td>
                   <td className="px-4 py-3">{doc.specialization}</td>
