@@ -106,6 +106,7 @@ const Departments = () => {
               placeholder="Head Doctor ID (optional)"
               value={head_doctor_id}
               onChange={(e) => setHeadDoctorId(e.target.value)}
+              onWheel={(e) => e.target.blur()}
               className="border px-4 py-2 rounded w-full"
             />
             <input

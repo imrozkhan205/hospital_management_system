@@ -1,10 +1,11 @@
-import { LogOut } from "lucide-react";
+import { Hospital, LogOut } from "lucide-react";
 
 const Navbar = ({ handleLogout }) => {
   return (
     <header className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
-        🏥 Hospital Admin Panel
+      <h1 className="flex gap-2 text-2xl font-bold text-gray-800 tracking-tight">
+        <Hospital className="mt-1"/>
+         Hospital Admin Panel
       </h1>
 
       <button

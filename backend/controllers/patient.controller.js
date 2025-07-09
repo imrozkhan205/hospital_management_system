@@ -64,7 +64,18 @@ export const createPatient = async(req, res) => {
 
 export const getPatients = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM patients');
+    const [rows] = await pool.query(`
+      SELECT 
+        p.*,
+        (
+          SELECT mr.diagnosis 
+          FROM medical_records mr 
+          WHERE mr.patient_id = p.patient_id 
+          ORDER BY mr.visit_date DESC 
+          LIMIT 1
+        ) AS latest_diagnosis
+      FROM patients p
+    `);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching patients', error: err.message });

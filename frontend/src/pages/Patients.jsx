@@ -67,17 +67,19 @@ const Patients = () => {
         <div className="overflow-x-auto rounded-lg shadow">
           <table className="w-full table-auto text-sm text-left text-gray-700">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-3">Patient #</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">DOB</th>
-                <th className="px-4 py-3">Gender</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Insurance</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
+  <tr>
+    <th className="px-4 py-3">Patient #</th>
+    <th className="px-4 py-3">Name</th>
+    <th className="px-4 py-3">DOB</th>
+    <th className="px-4 py-3">Gender</th>
+    <th className="px-4 py-3">Phone</th>
+    <th className="px-4 py-3">Email</th>
+    <th className="px-4 py-3">Insurance</th>
+    <th className="px-4 py-3">Diagnosis</th>
+    <th className="px-4 py-3 text-right">Actions</th>
+  </tr>
+</thead>
+
             <tbody>
               {patients.map((patient) => (
                 <tr key={patient.patient_id} className="border-b hover:bg-gray-50">
@@ -96,6 +98,8 @@ const Patients = () => {
                   <td className="px-4 py-3">{patient.phone}</td>
                   <td className="px-4 py-3">{patient.email}</td>
                   <td className="px-4 py-3">{patient.insurance_provider}</td>
+                  <td className="px-4 py-3">{patient.latest_diagnosis || 'N/A'}</td>
+
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => handleDelete(patient.patient_id)}

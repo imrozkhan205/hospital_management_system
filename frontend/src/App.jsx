@@ -9,12 +9,13 @@ import Doctors from './pages/Doctors';
 import Appointments from './pages/Appointments';
 import Departments from './pages/Departments';
 import MedicalRecords from './pages/MedicalRecords';
-  import Sidebar from './components/layout/Sidebar';
+import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
 import AddAppointment from './pages/AddAppointment'
 import { axiosInstance } from './lib/axios';
 import AddDoctor from './pages/AddDoctor';
 import AddPatient from './pages/AddPatient';
+import AddMedicalRecord from './pages/AddMedicalRecord';
 
 function App() {
   const [authUser, setAuthUser] = useState(null);
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/doctors/add" element={<AddDoctor />} />
                 <Route path="/patients/add" element={<AddPatient/>}  />
                 <Route path='/appointments/add' element={<AddAppointment />} />
+                <Route path='/medical-records/add' element={<AddMedicalRecord />} />
 
               </Routes>
             </main>
