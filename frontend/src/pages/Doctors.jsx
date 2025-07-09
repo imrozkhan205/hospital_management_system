@@ -79,7 +79,8 @@ const Doctors = () => {
             <tbody>
               {doctors.map((doc) => (
                 <tr key={doc.doctor_id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3">{doc.employee_id}</td>
+                                    <td className="px-4 py-3">{doc.doctor_id}</td>
+                  {/* <td className="px-4 py-3">{doc.employee_id}</td> */}
                   <td className="px-4 py-3">
                     {doc.first_name} {doc.last_name}
                   </td>

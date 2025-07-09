@@ -44,7 +44,10 @@ const Patients = () => {
           <User className="text-purple-600" size={24} />
           Patients
         </h1>
-        <Link to='/patients/add' className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow">
+        <Link
+          to="/patients/add"
+          className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow"
+        >
           <UserPlus className="mr-2" size={18} />
           Add Patient
         </Link>
@@ -67,23 +70,24 @@ const Patients = () => {
         <div className="overflow-x-auto rounded-lg shadow">
           <table className="w-full table-auto text-sm text-left text-gray-700">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-  <tr>
-    <th className="px-4 py-3">Patient #</th>
-    <th className="px-4 py-3">Name</th>
-    <th className="px-4 py-3">DOB</th>
-    <th className="px-4 py-3">Gender</th>
-    <th className="px-4 py-3">Phone</th>
-    <th className="px-4 py-3">Email</th>
-    <th className="px-4 py-3">Insurance</th>
-    <th className="px-4 py-3">Diagnosis</th>
-    <th className="px-4 py-3 text-right">Actions</th>
-  </tr>
-</thead>
-
+              <tr>
+                <th className="px-4 py-3">Patient ID</th>
+                {/* <th className="px-4 py-3">Patient #</th> */}
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">DOB</th>
+                <th className="px-4 py-3">Gender</th>
+                <th className="px-4 py-3">Phone</th>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Insurance</th>
+                <th className="px-4 py-3">Diagnosis</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
             <tbody>
               {patients.map((patient) => (
                 <tr key={patient.patient_id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3">{patient.patient_number}</td>
+                  <td className="px-4 py-3">{patient.patient_id}</td>
+                  {/* <td className="px-4 py-3">{patient.patient_number}</td> */}
                   <td className="px-4 py-3">
                     {patient.first_name} {patient.last_name}
                   </td>
@@ -99,7 +103,6 @@ const Patients = () => {
                   <td className="px-4 py-3">{patient.email}</td>
                   <td className="px-4 py-3">{patient.insurance_provider}</td>
                   <td className="px-4 py-3">{patient.latest_diagnosis || 'N/A'}</td>
-
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => handleDelete(patient.patient_id)}

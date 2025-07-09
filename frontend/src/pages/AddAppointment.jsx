@@ -38,24 +38,40 @@ const AddAppointment = () => {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const { name, value } = e.target;
+
+  const newValue = (name === "patient_id" || name === "doctor_id")
+    ? Number(value)
+    : value;
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: newValue,
+  }));
+};
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      await axiosInstance.post("/appointments", formData);
-      toast.success("Appointment added successfully");
-      navigate("/appointments");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add appointment");
-    }
+  const preparedData = {
+    ...formData,
+    patient_id: Number(formData.patient_id),
+    doctor_id: Number(formData.doctor_id),
+    duration_minutes: Number(formData.duration_minutes),
   };
+
+  console.log("Submitting prepared:", preparedData);
+
+  try {
+    await axiosInstance.post("/appointments", preparedData);
+    toast.success("Appointment added successfully");
+    navigate("/appointments");
+  } catch (error) {
+    console.error("Error response:", error.response);
+    toast.error(error.response?.data?.message || "Failed to add appointment");
+  }
+};
+
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -126,14 +142,20 @@ const AddAppointment = () => {
           required
         />
 
-        <input
-          type="text"
-          name="appointment_type"
-          placeholder="Appointment Type"
-          value={formData.appointment_type}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
-        />
+        <select
+  name="appointment_type"
+  value={formData.appointment_type}
+  onChange={handleChange}
+  className="border px-3 py-2 rounded"
+  required
+>
+  <option value="">Select Type</option>
+  <option value="consultation">Consultation</option>
+  <option value="follow_up">Follow-up</option>
+  <option value="emergency">Emergency</option>
+  <option value="routine_checkup">Routine Checkup</option>
+</select>
+
 
         <select
           name="status"
