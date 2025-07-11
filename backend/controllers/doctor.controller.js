@@ -117,8 +117,9 @@ export const updateDoctor = async (req, res) => {
 
 // controllers/doctor.controller.js
 
+// controllers/doctor.controller.js
 export const getDoctorAppointments = async (req, res) => {
-  const { doctorId } = req.params;
+  const doctorId = req.params.doctorId;
   try {
     const [rows] = await pool.query(
       "SELECT * FROM appointments WHERE doctor_id = ?",
@@ -127,9 +128,10 @@ export const getDoctorAppointments = async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error fetching appointments" });
+    res.status(500).json({ message: "Failed to get appointments" });
   }
 };
+
 
 export const getDoctorPatients = async (req, res) => {
   const { doctorId } = req.params;
@@ -145,5 +147,34 @@ export const getDoctorPatients = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching patients" });
+  }
+};
+
+
+// POST /api/doctors/create-with-user
+export const createDoctorWithUser = async (req, res) => {
+  const { username, password, first_name, last_name, email, phone, specialization, license_number, department_id } = req.body;
+
+  try {
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert doctor
+    const [doctorResult] = await pool.query(
+      "INSERT INTO doctors (first_name, last_name, email, phone, specialization, license_number, department_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [first_name, last_name, email, phone, specialization, license_number, department_id]
+    );
+    const newDoctorId = doctorResult.insertId;
+
+    // Insert user linked to doctor
+    await pool.query(
+      "INSERT INTO users (username, password, role, linked_doctor_id) VALUES (?, ?, 'doctor', ?)",
+      [username, hashedPassword, newDoctorId]
+    );
+
+    res.status(201).json({ message: "Doctor and user created successfully", doctor_id: newDoctorId });
+  } catch (err) {
+    console.error("Error creating doctor and user:", err);
+    res.status(500).json({ message: "Failed to create doctor and user", error: err.message });
   }
 };

@@ -120,3 +120,5 @@ export const getPatientById = async (req, res) => {
     res.status(500).json({ message: "Error fetching patient", error: err.message });
   }
 };
+
+

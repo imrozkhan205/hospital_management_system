@@ -1,24 +1,22 @@
-// src/pages/DoctorDashboard.js
 import { useEffect, useState } from 'react';
 import { axiosInstance } from '../lib/axios';
 import { CalendarCheck, Users } from 'lucide-react';
 
-// Receive doctorId as a prop
-const DoctorDashboard = ({ doctorId }) => {
+const DoctorDashboard = () => {
+  const doctorId = localStorage.getItem('linked_doctor_id');
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Only fetch if doctorId is valid
       if (!doctorId) {
-        setLoading(false); // No doctorId, nothing to fetch
-        console.log("DoctorDashboard: No doctorId provided, skipping fetch.");
+        setLoading(false);
+        console.log("DoctorDashboard: No doctorId found in localStorage.");
         return;
       }
 
-      setLoading(true); // Set loading to true when starting fetch
+      setLoading(true);
       try {
         const [apptRes, patientsRes] = await Promise.all([
           axiosInstance.get(`/doctors/${doctorId}/appointments`),
@@ -28,15 +26,13 @@ const DoctorDashboard = ({ doctorId }) => {
         setPatients(patientsRes.data);
       } catch (err) {
         console.error('Error fetching doctor data:', err);
-        // Optionally show a toast error
-        // toast.error("Failed to load doctor dashboard data.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData(); // Call fetchData inside useEffect
-  }, [doctorId]); // doctorId is now correctly in the dependency array
+    fetchData();
+  }, [doctorId]);
 
   return (
     <div className="p-6">
