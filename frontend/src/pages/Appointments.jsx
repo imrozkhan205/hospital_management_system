@@ -7,13 +7,21 @@ import { Link } from "react-router-dom";
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const role = localStorage.getItem('role');
+  const doctorId = localStorage.getItem('doctorId');
 
   const fetchAppointments = async () => {
     try {
-      const res = await axiosInstance.get("/appointments");
+      let res;
+      if (role === 'doctor' && doctorId) {
+        res = await axiosInstance.get(`/doctors/${doctorId}/appointments`);
+      } else {
+        res = await axiosInstance.get('/appointments');
+      }
       setAppointments(res.data);
     } catch (error) {
-      toast.error("Failed to fetch appointments");
+      console.error('Failed to fetch appointments', error);
+      toast.error('Failed to load appointments');
     } finally {
       setLoading(false);
     }
@@ -24,7 +32,7 @@ const Appointments = () => {
     try {
       await axiosInstance.delete(`/appointments/${id}`);
       toast.success("Appointment deleted");
-      setAppointments(appointments.filter((appt) => appt.appointment_id !== id));
+      setAppointments((prev) => prev.filter((appt) => appt.appointment_id !== id));
     } catch (error) {
       toast.error("Failed to delete appointment");
     }
@@ -36,7 +44,6 @@ const Appointments = () => {
 
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
           <Calendar className="text-purple-600" />
@@ -51,7 +58,6 @@ const Appointments = () => {
         </Link>
       </div>
 
-      {/* Table */}
       {loading ? (
         <p className="text-center text-gray-500">Loading appointments...</p>
       ) : appointments.length === 0 ? (
@@ -75,7 +81,7 @@ const Appointments = () => {
                 <tr key={appt.appointment_id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3">{appt.patient_id}</td>
                   <td className="px-4 py-3">{appt.doctor_id}</td>
-                  <td className="px-4 py-3">{appt.appointment_date}</td>
+                  <td className="px-4 py-3">{new Date(appt.appointment_date).toLocaleString()}</td>
                   <td className="px-4 py-3">{appt.appointment_time}</td>
                   <td className="px-4 py-3 capitalize">{appt.appointment_type}</td>
                   <td className="px-4 py-3 capitalize">{appt.status}</td>

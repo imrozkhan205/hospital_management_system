@@ -121,3 +121,18 @@ export const deleteAppointment = async (req, res) => {
     res.status(500).json({ message: "Error deleting appointment", error: error.message });
   }
 };
+
+export const getAppointmentsByDoctorId = async (req, res) => {
+  const doctor_id = req.params.doctor_id;
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM appointments WHERE doctor_id = ? ORDER BY appointment_date DESC, appointment_time DESC",
+      [doctor_id]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching appointments", error: err.message });
+  }
+};

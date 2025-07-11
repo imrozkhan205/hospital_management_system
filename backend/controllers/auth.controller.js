@@ -1,28 +1,49 @@
-import jwt from 'jsonwebtoken';
+import pool from "../config/db.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import dotenv from 'dotenv';
+dotenv.config();
 
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin123';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const login = async (req, res) => {
   const { username, password } = req.body;
 
-  if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ message: 'Invalid username or password' });
-  }
-
   try {
+    // Lookup user by username
+    const [rows] = await pool.query("SELECT * FROM users WHERE username = ?", [username]);
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    const user = rows[0];
+
+    // Compare passwords
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    // Generate token
     const token = jwt.sign(
-      { username: ADMIN_USERNAME }, 
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      {
+        user_id: user.user_id,
+        role: user.role,
+        linked_doctor_id: user.linked_doctor_id,
+        linked_patient_id: user.linked_patient_id
+      },
+      JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
     res.json({
       token,
-      username: ADMIN_USERNAME, // Just username
+      role: user.role,
+      linked_doctor_id: user.linked_doctor_id,
+      linked_patient_id: user.linked_patient_id
     });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: 'Server error during login' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Login failed", error: err.message });
   }
 };

@@ -7,22 +7,28 @@ import toast from 'react-hot-toast';
 const Patients = () => {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const role = localStorage.getItem('role');
+  const doctorId = localStorage.getItem('doctorId');
 
   const fetchPatients = async () => {
     try {
-      const res = await axiosInstance.get('/patients');
+      let res;
+      if (role === 'doctor' && doctorId) {
+        res = await axiosInstance.get(`/doctors/${doctorId}/patients`);
+      } else {
+        res = await axiosInstance.get('/patients');
+      }
       setPatients(res.data);
     } catch (error) {
       console.error('Error fetching patients:', error);
+      toast.error('Failed to load patients');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    const confirm = window.confirm('Are you sure you want to delete this patient?');
-    if (!confirm) return;
-
+    if (!window.confirm('Are you sure you want to delete this patient?')) return;
     try {
       await axiosInstance.delete(`/patients/${id}`);
       toast.success('Patient deleted');
@@ -38,7 +44,6 @@ const Patients = () => {
 
   return (
     <div className="p-6">
-      {/* Header & Actions */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
           <User className="text-purple-600" size={24} />
@@ -53,7 +58,6 @@ const Patients = () => {
         </Link>
       </div>
 
-      {/* Summary Card */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-white border rounded-xl shadow-sm p-6 text-center">
           <p className="text-gray-500 font-medium">Total Patients</p>
@@ -61,7 +65,6 @@ const Patients = () => {
         </div>
       </div>
 
-      {/* Table */}
       {loading ? (
         <div className="text-center text-gray-600">Loading patients...</div>
       ) : patients.length === 0 ? (
@@ -72,7 +75,6 @@ const Patients = () => {
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
               <tr>
                 <th className="px-4 py-3">Patient ID</th>
-                {/* <th className="px-4 py-3">Patient #</th> */}
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">DOB</th>
                 <th className="px-4 py-3">Gender</th>
@@ -87,16 +89,9 @@ const Patients = () => {
               {patients.map((patient) => (
                 <tr key={patient.patient_id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3">{patient.patient_id}</td>
-                  {/* <td className="px-4 py-3">{patient.patient_number}</td> */}
+                  <td className="px-4 py-3">{patient.first_name} {patient.last_name}</td>
                   <td className="px-4 py-3">
-                    {patient.first_name} {patient.last_name}
-                  </td>
-                  <td className="px-4 py-3">
-                    {new Date(patient.date_of_birth).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
+                    {new Date(patient.date_of_birth).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </td>
                   <td className="px-4 py-3">{patient.gender}</td>
                   <td className="px-4 py-3">{patient.phone}</td>

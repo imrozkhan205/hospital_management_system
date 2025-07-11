@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend
 } from 'recharts';
 import { User, Stethoscope, Calendar, FileText } from 'lucide-react';
-import { axiosInstance } from '../lib/axios'; // Assuming this is configured correctly
+import { axiosInstance } from '../lib/axios';
 
 const Dashboard = () => {
   const [patients, setPatients] = useState([]);

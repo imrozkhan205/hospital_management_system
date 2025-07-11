@@ -1,154 +1,111 @@
 import { useState } from "react";
+import { axiosInstance } from "../lib/axios.js";
 import { useNavigate } from "react-router-dom";
-import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 
 const AddDoctor = () => {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    employee_id: "",
+  const [form, setForm] = useState({
     first_name: "",
     last_name: "",
     email: "",
     phone: "",
     specialization: "",
-    license_number: "",
-    department_id: "",
-    consultation_fee: "",
     experience_years: "",
+    username: "",
+    password: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      await axiosInstance.post("/doctors", formData);
-      toast.success("Doctor added successfully");
+      await axiosInstance.post("/doctors", form);
+      toast.success("Doctor created with login");
       navigate("/doctors");
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to add doctor"
-      );
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Error adding doctor");
     }
   };
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Add Doctor</h2>
+      <h2 className="text-xl font-bold mb-4">Add Doctor</h2>
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-6 border rounded-xl shadow-md"
+        className="grid gap-4 bg-white p-6 rounded shadow"
       >
         <input
-          type="text"
-          name="employee_id"
-          placeholder="Employee ID"
-          value={formData.employee_id}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
-          required
-        />
-        <input
-          type="text"
           name="first_name"
+          value={form.first_name}
+          onChange={handleChange}
           placeholder="First Name"
-          value={formData.first_name}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
           required
+          className="border p-2 rounded"
         />
         <input
-          type="text"
           name="last_name"
+          value={form.last_name}
+          onChange={handleChange}
           placeholder="Last Name"
-          value={formData.last_name}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
           required
+          className="border p-2 rounded"
         />
         <input
-          type="email"
           name="email"
+          value={form.email}
+          onChange={handleChange}
           placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
           required
+          className="border p-2 rounded"
         />
         <input
-          type="text"
           name="phone"
+          value={form.phone}
+          onChange={handleChange}
           placeholder="Phone"
-          value={formData.phone}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
           required
+          className="border p-2 rounded"
         />
         <input
-          type="text"
           name="specialization"
+          value={form.specialization}
+          onChange={handleChange}
           placeholder="Specialization"
-          value={formData.specialization}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
           required
+          className="border p-2 rounded"
         />
         <input
-          type="text"
-          name="license_number"
-          placeholder="License Number"
-          value={formData.license_number}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
-          required
-        />
-        <input
-          type="number"
-          name="department_id"
-          placeholder="Department ID"
-          value={formData.department_id}
-            onWheel={(e) => e.target.blur()}
-
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
-          required
-        />
-        <input
-          type="number"
-          name="consultation_fee"
-          placeholder="Consultation Fee"
-          value={formData.consultation_fee}
-          onChange={handleChange}
-          className="border px-3 py-2 rounded"
-          required
-        />
-        <input
-          type="number"
           name="experience_years"
-          placeholder="Experience (Years)"
-          value={formData.experience_years}
+          value={form.experience_years}
           onChange={handleChange}
-          className="border px-3 py-2 rounded"
+          placeholder="Experience (years)"
+          type="number"
           required
+          className="border p-2 rounded"
         />
-
-        <div className="sm:col-span-2 flex justify-end">
-          <button
-            type="submit"
-            className="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700"
-          >
-            Add Doctor
-          </button>
-        </div>
+        <input
+          name="username"
+          value={form.username}
+          onChange={handleChange}
+          placeholder="Username for login"
+          required
+          className="border p-2 rounded"
+        />
+        <input
+          name="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="Password"
+          type="password"
+          required
+          className="border p-2 rounded"
+        />
+        <button type="submit" className="bg-purple-600 text-white py-2 rounded">
+          Add Doctor
+        </button>
       </form>
     </div>
   );

@@ -1,5 +1,5 @@
 import pool from "../config/db.js";
-
+import bcrypt from "bcryptjs";
 export const getDoctors = async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM doctors");
@@ -13,46 +13,41 @@ export const getDoctors = async (req, res) => {
 
 export const createDoctor = async (req, res) => {
   const {
-    employee_id,
     first_name,
     last_name,
     email,
     phone,
     specialization,
-    license_number,
-    department_id,
-    consultation_fee,
     experience_years,
+    username,
+    password
   } = req.body;
 
   try {
-    const [result] = await pool.query(
-      `INSERT INTO doctors 
-      (employee_id, first_name, last_name, email, phone, specialization, license_number, department_id, consultation_fee, experience_years)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        employee_id,
-        first_name,
-        last_name,
-        email,
-        phone,
-        specialization,
-        license_number,
-        department_id,
-        consultation_fee,
-        experience_years,
-      ]
+    // 1. Add doctor
+    const [doctorResult] = await pool.query(
+      "INSERT INTO doctors (first_name, last_name, email, phone, specialization, experience_years) VALUES (?, ?, ?, ?, ?, ?)",
+      [first_name, last_name, email, phone, specialization, experience_years]
+    );
+    const doctor_id = doctorResult.insertId;
+
+    // 2. Hash password
+    const hashedPassword = await bcrypt.hash(password || 'doctor123', 10);
+
+    // 3. Add user
+    await pool.query(
+      "INSERT INTO users (username, password, role, linked_doctor_id) VALUES (?, ?, 'doctor', ?)",
+      [username, hashedPassword, doctor_id]
     );
 
-    res
-      .status(201)
-      .json({ message: "Doctor created", doctor_id: result.insertId });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error creating doctor", error: err.message });
+    res.status(201).json({ message: "Doctor created with login" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error creating doctor", error: error.message });
   }
 };
+
+
 
 export const deleteDoctor = async (req, res) => {
   const { id } = req.params;
@@ -117,5 +112,38 @@ export const updateDoctor = async (req, res) => {
     res.json({ message: "Doctor updated successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error updating doctor", error: error.message });
+  }
+};
+
+// controllers/doctor.controller.js
+
+export const getDoctorAppointments = async (req, res) => {
+  const { doctorId } = req.params;
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM appointments WHERE doctor_id = ?",
+      [doctorId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching appointments" });
+  }
+};
+
+export const getDoctorPatients = async (req, res) => {
+  const { doctorId } = req.params;
+  try {
+    const [rows] = await pool.query(
+      `SELECT DISTINCT p.* 
+       FROM patients p
+       JOIN appointments a ON p.patient_id = a.patient_id
+       WHERE a.doctor_id = ?`,
+      [doctorId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching patients" });
   }
 };

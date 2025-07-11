@@ -1,66 +1,44 @@
 import pool from "../config/db.js";
+import bcrypt from "bcryptjs";
 
+// Create patient with user login
+export const createPatient = async (req, res) => {
+  const {
+    first_name,
+    last_name,
+    date_of_birth,
+    gender,
+    phone,
+    email,
+    insurance_provider,
+    username,
+    password
+  } = req.body;
 
-export const createPatient = async(req, res) => {
-    const {
-    patient_number,
-    first_name ,
-    last_name ,
-    date_of_birth ,
-    gender ,
-    blood_type,
-    phone ,
-    email ,
-    address,
-    emergency_contact_name ,
-    emergency_contact_phone ,
-    insurance_provider ,
-    insurance_policy_number ,
-    allergies,
-    } = req.body;
+  try {
+    // 1. Add patient
+    const [patientResult] = await pool.query(
+      "INSERT INTO patients (first_name, last_name, date_of_birth, gender, phone, email, insurance_provider) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [first_name, last_name, date_of_birth, gender, phone, email, insurance_provider]
+    );
+    const patient_id = patientResult.insertId;
 
-    try {
-        const [result] = await pool.query(
-            `INSERT INTO patients 
-            (    patient_number,
-    first_name ,
-    last_name ,
-    date_of_birth ,
-    gender ,
-    blood_type,
-    phone ,
-    email ,
-    address,
-    emergency_contact_name ,
-    emergency_contact_phone ,
-    insurance_provider ,
-    insurance_policy_number,
-    allergies
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-             patient_number,
-        first_name,
-        last_name,
-        date_of_birth,
-        gender,
-        blood_type,
-        phone,
-        email,
-        address,
-        emergency_contact_name,
-        emergency_contact_phone,
-        insurance_provider,
-        insurance_policy_number,
-        allergies
-        ]
+    // 2. Hash password
+    const hashedPassword = await bcrypt.hash(password || 'patient123', 10);
+
+    // 3. Add user
+    await pool.query(
+      "INSERT INTO users (username, password, role, linked_patient_id) VALUES (?, ?, 'patient', ?)",
+      [username, hashedPassword, patient_id]
     );
 
-    res.status(201).json({message: 'Patient created', patient_id: result.insertID });
-    } catch (err) {
-        res.status(500).json({message: 'Error creating patient', error: err.message})
-    }
-}
+    res.status(201).json({ message: "Patient created with login" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error creating patient", error: error.message });
+  }
+};
+
 
 export const getPatients = async (req, res) => {
   try {
@@ -129,3 +107,16 @@ export const updatePatient = async(req, res) => {
         res.status(500).json({message: "Error updating patient", error: error.message})
     }
 }
+
+export const getPatientById = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const [rows] = await pool.query("SELECT * FROM patients WHERE patient_id = ?", [id]);
+    if (rows.length === 0) return res.status(404).json({ message: "Patient not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching patient", error: err.message });
+  }
+};

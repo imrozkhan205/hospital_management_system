@@ -1,27 +1,43 @@
+// src/components/layout/Sidebar.js
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  Home,
-  User,
-  Stethoscope,
-  Calendar,
-  Folder,
-  FileText,
-  SidebarClose,
-  SidebarOpen,
+  Home, User, Stethoscope, Calendar, Folder, FileText,
+  SidebarClose, SidebarOpen
 } from 'lucide-react';
 
-const Sidebar = () => {
+// Receive authUserRole as a prop
+const Sidebar = ({ authUserRole }) => {
   const [collapsed, setCollapsed] = useState(false);
+  // Use the prop directly
+  const role = authUserRole;
 
-  const links = [
-    { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
-    { to: "/patients", icon: <User size={18} />, label: "Patients" },
-    { to: "/doctors", icon: <Stethoscope size={18} />, label: "Doctors" },
-    { to: "/appointments", icon: <Calendar size={18} />, label: "Appointments" },
-    { to: "/departments", icon: <Folder size={18} />, label: "Departments" },
-    { to: "/medical-records", icon: <FileText size={18} />, label: "Medical Records" },
-  ];
+  // Define links based on the role prop
+  let links = [];
+
+  if (role === 'admin') {
+    links = [
+      { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
+      { to: "/patients", icon: <User size={18} />, label: "Patients" },
+      { to: "/doctors", icon: <Stethoscope size={18} />, label: "Doctors" },
+      { to: "/appointments", icon: <Calendar size={18} />, label: "Appointments" },
+      { to: "/departments", icon: <Folder size={18} />, label: "Departments" },
+      { to: "/medical-records", icon: <FileText size={18} />, label: "Medical Records" },
+    ];
+  } else if (role === 'doctor') {
+    links = [
+      { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
+      { to: "/appointments", icon: <Calendar size={18} />, label: "My Appointments" },
+      { to: "/patients", icon: <User size={18} />, label: "My Patients" },
+    ];
+  } else if (role === 'patient') {
+    links = [
+      { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
+      { to: "/appointments", icon: <Calendar size={18} />, label: "My Appointments" },
+      { to: "/doctors", icon: <Stethoscope size={18} />, label: "My Doctors" },
+    ];
+  }
+  // If role is null or unrecognized, links will be empty, which is appropriate for unauthenticated/unknown users
 
   return (
     <aside
@@ -29,22 +45,20 @@ const Sidebar = () => {
         collapsed ? 'w-20' : 'w-64'
       }`}
     >
-      {/* Toggle Button */}
+      {/* Toggle */}
       <div className="flex justify-between items-center mb-6">
         {!collapsed && (
-          <h2 className="text-2xl font-bold text-purple-600 transition-opacity duration-300">
-            MediCare
-          </h2>
+          <h2 className="text-2xl font-bold text-purple-600">MediCare</h2>
         )}
-        <button clas
+        <button
           onClick={() => setCollapsed(!collapsed)}
           className="text-gray-500 hover:text-purple-600 ml-3"
         >
-          {collapsed ? <SidebarOpen size={20} /> : <SidebarClose size={20}  />}
+          {collapsed ? <SidebarOpen size={20} /> : <SidebarClose size={20} />}
         </button>
       </div>
 
-      {/* Navigation */}
+      {/* Links */}
       <nav className="space-y-1">
         {links.map((link) => (
           <NavLink
