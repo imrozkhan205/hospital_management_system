@@ -7,40 +7,42 @@ import { Link } from "react-router-dom";
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const role = localStorage.getItem('role');
-  const doctorId = localStorage.getItem('doctorId');
-  const patientId = localStorage.getItem('patientId');
+  const role = localStorage.getItem("role");
+  const doctorId = localStorage.getItem("doctorId");
+  const patientId = localStorage.getItem("patientId");
 
   const fetchAppointments = async () => {
-  try {
-    const role = localStorage.getItem('role');
-    let res;
+    try {
+      const role = localStorage.getItem("role");
+      let res;
 
-    if (role === 'doctor') {
-      const doctorId = localStorage.getItem('linked_doctor_id');
-      res = await axiosInstance.get(`/doctors/${doctorId}/appointments`);
-    } else if (role === 'patient') {
-      const patientId = localStorage.getItem('linked_patient_id');
-      res = await axiosInstance.get(`/patients/${patientId}/appointments`);
-    } else {
-      res = await axiosInstance.get('/appointments'); // admin gets all
+      if (role === "doctor") {
+        const doctorId = localStorage.getItem("linked_doctor_id");
+        res = await axiosInstance.get(`/doctors/${doctorId}/appointments`);
+      } else if (role === "patient") {
+        const patientId = localStorage.getItem("linked_patient_id");
+        res = await axiosInstance.get(`/patients/${patientId}/appointments`);
+      } else {
+        res = await axiosInstance.get("/appointments"); // admin gets all
+      }
+
+      setAppointments(res.data);
+    } catch (error) {
+      toast.error("Failed to fetch appointments");
+    } finally {
+      setLoading(false);
     }
-
-    setAppointments(res.data);
-  } catch (error) {
-    toast.error("Failed to fetch appointments");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this appointment?")) return;
+    if (!window.confirm("Are you sure you want to delete this appointment?"))
+      return;
     try {
       await axiosInstance.delete(`/appointments/${id}`);
       toast.success("Appointment deleted");
-      setAppointments((prev) => prev.filter((appt) => appt.appointment_id !== id));
+      setAppointments((prev) =>
+        prev.filter((appt) => appt.appointment_id !== id)
+      );
     } catch (error) {
       toast.error("Failed to delete appointment");
     }
@@ -88,13 +90,20 @@ const Appointments = () => {
             </thead>
             <tbody>
               {appointments.map((appt) => (
-                <tr key={appt.appointment_id} className="border-b hover:bg-gray-50">
+                <tr
+                  key={appt.appointment_id}
+                  className="border-b hover:bg-gray-50"
+                >
                   <td className="px-4 py-3">{appt.patient_id}</td>
                   <td className="px-4 py-3">{appt.doctor_id}</td>
                   {/* <td className="px-4 py-3">{appt.first_name}</td> */}
-                  <td className="px-4 py-3">{new Date(appt.appointment_date).toLocaleString()}</td>
+                  <td className="px-4 py-3">
+                    {new Date(appt.appointment_date).toLocaleDateString()}
+                  </td>
                   <td className="px-4 py-3">{appt.appointment_time}</td>
-                  <td className="px-4 py-3 capitalize">{appt.appointment_type}</td>
+                  <td className="px-4 py-3 capitalize">
+                    {appt.appointment_type}
+                  </td>
                   <td className="px-4 py-3 capitalize">{appt.status}</td>
                   <td className="px-4 py-3 text-right">
                     <button

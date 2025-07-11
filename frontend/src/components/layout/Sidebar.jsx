@@ -1,4 +1,3 @@
-// src/components/layout/Sidebar.js
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
@@ -6,25 +5,21 @@ import {
   SidebarClose, SidebarOpen
 } from 'lucide-react';
 
-// Receive authUserRole as a prop
-const Sidebar = ({ authUserRole }) => {
+const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  // Use the prop directly
-  const role = authUserRole;
+  const role = localStorage.getItem('role');
 
-  // Define links based on the role prop
-  let links = [];
+  // Default admin links
+  let links = [
+    { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
+    { to: "/patients", icon: <User size={18} />, label: "Patients" },
+    { to: "/doctors", icon: <Stethoscope size={18} />, label: "Doctors" },
+    { to: "/appointments", icon: <Calendar size={18} />, label: "Appointments" },
+    { to: "/departments", icon: <Folder size={18} />, label: "Departments" },
+    { to: "/medical-records", icon: <FileText size={18} />, label: "Medical Records" },
+  ];
 
-  if (role === 'admin') {
-    links = [
-      { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
-      { to: "/patients", icon: <User size={18} />, label: "Patients" },
-      { to: "/doctors", icon: <Stethoscope size={18} />, label: "Doctors" },
-      { to: "/appointments", icon: <Calendar size={18} />, label: "Appointments" },
-      { to: "/departments", icon: <Folder size={18} />, label: "Departments" },
-      { to: "/medical-records", icon: <FileText size={18} />, label: "Medical Records" },
-    ];
-  } else if (role === 'doctor') {
+  if (role === 'doctor') {
     links = [
       { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
       { to: "/appointments", icon: <Calendar size={18} />, label: "My Appointments" },
@@ -37,7 +32,6 @@ const Sidebar = ({ authUserRole }) => {
       { to: "/doctors", icon: <Stethoscope size={18} />, label: "My Doctors" },
     ];
   }
-  // If role is null or unrecognized, links will be empty, which is appropriate for unauthenticated/unknown users
 
   return (
     <aside
