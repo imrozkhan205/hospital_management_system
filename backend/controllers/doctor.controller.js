@@ -172,9 +172,58 @@ export const createDoctorWithUser = async (req, res) => {
       [username, hashedPassword, newDoctorId]
     );
 
-    res.status(201).json({ message: "Doctor and user created successfully", doctor_id: newDoctorId });
+    res.status(201).json({ message: "Doctor(user) created successfully", doctor_id: newDoctorId });
   } catch (err) {
     console.error("Error creating doctor and user:", err);
     res.status(500).json({ message: "Failed to create doctor and user", error: err.message });
+  }
+};
+
+
+// doctor.controller.js
+export const getDoctorStats = async (req, res) => {
+  const { doctorId } = req.params;
+  try {
+    // Appointments by status
+    const [apptStats] = await pool.query(
+      `SELECT status, COUNT(*) as count 
+       FROM appointments 
+       WHERE doctor_id = ? 
+       GROUP BY status`, [doctorId]
+    );
+
+    // Appointments by type
+    const [typeStats] = await pool.query(
+      `SELECT appointment_type, COUNT(*) as count 
+       FROM appointments 
+       WHERE doctor_id = ? 
+       GROUP BY appointment_type`, [doctorId]
+    );
+
+    // Appointments over last months
+    const [monthlyStats] = await pool.query(`
+      SELECT DATE_FORMAT(appointment_date, '%Y-%m') as month, COUNT(*) as count
+      FROM appointments 
+      WHERE doctor_id = ?
+      GROUP BY month
+      ORDER BY month
+    `, [doctorId]);
+
+    // Number of unique patients seen
+    const [patientsSeen] = await pool.query(`
+      SELECT COUNT(DISTINCT patient_id) as total_patients
+      FROM appointments 
+      WHERE doctor_id = ?
+    `, [doctorId]);
+
+    res.json({
+      apptStats,
+      typeStats,
+      monthlyStats,
+      totalPatients: patientsSeen[0].total_patients
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch doctor stats", error: err.message });
   }
 };

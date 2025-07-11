@@ -5,8 +5,8 @@ import { Hospital, LogOut } from "lucide-react";
 const Navbar = ({ handleLogout, authUserRole }) => {
   // Use the prop directly
   let title = "Hospital Admin Panel";
-  if (authUserRole === 'doctor') title = "Doctor Dashboard";
-  else if (authUserRole === 'patient') title = "Patient Dashboard";
+  if (authUserRole === 'doctor') title = "Doctor Panel";
+  else if (authUserRole === 'patient') title = "Patient Panel";
 
   return (
     <header className="bg-white shadow-md px-6 py-4 flex justify-between items-center">

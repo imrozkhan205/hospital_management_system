@@ -1,124 +1,77 @@
-import { useEffect, useState } from 'react';
-import { axiosInstance } from '../lib/axios';
-import { CalendarCheck, Users } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { axiosInstance } from "../lib/axios";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
+import { CalendarCheck, Users } from "lucide-react";
 
 const DoctorDashboard = () => {
   const doctorId = localStorage.getItem('linked_doctor_id');
-  const [appointments, setAppointments] = useState([]);
-  const [patients, setPatients] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!doctorId) {
-        setLoading(false);
-        console.log("DoctorDashboard: No doctorId found in localStorage.");
-        return;
-      }
-
-      setLoading(true);
+    const fetchStats = async () => {
       try {
-        const [apptRes, patientsRes] = await Promise.all([
-          axiosInstance.get(`/doctors/${doctorId}/appointments`),
-          axiosInstance.get(`/doctors/${doctorId}/patients`),
-        ]);
-        setAppointments(apptRes.data);
-        setPatients(patientsRes.data);
+        const res = await axiosInstance.get(`/doctors/${doctorId}/stats`);
+        setStats(res.data);
       } catch (err) {
-        console.error('Error fetching doctor data:', err);
+        console.error("Error fetching stats", err);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
+    if(doctorId) fetchStats();
   }, [doctorId]);
 
+  if (loading) return <div className="p-6">Loading dashboard...</div>;
+  if (!stats) return <div className="p-6">Failed to load stats</div>;
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+    <div className="p-6 space-y-8">
+      <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
         <CalendarCheck className="text-purple-600" /> Doctor Dashboard
       </h1>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white border rounded-xl shadow p-6 text-center">
-          <p className="text-gray-500 font-medium">My Appointments</p>
-          <p className="text-3xl font-bold text-purple-600">{appointments.length}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="bg-white p-4 rounded shadow text-center">
+          <p className="text-gray-500">Total Patients Seen</p>
+          <p className="text-3xl font-bold text-purple-600">{stats.totalPatients}</p>
         </div>
-        <div className="bg-white border rounded-xl shadow p-6 text-center">
-          <p className="text-gray-500 font-medium">My Patients</p>
-          <p className="text-3xl font-bold text-purple-600">{patients.length}</p>
+        <div className="bg-white p-4 rounded shadow text-center">
+          <p className="text-gray-500">Completed Appointments</p>
+          <p className="text-3xl font-bold text-purple-600">{stats.apptStats.find(s => s.status === 'completed')?.count || 0}</p>
+        </div>
+        <div className="bg-white p-4 rounded shadow text-center">
+          <p className="text-gray-500">Pending Appointments</p>
+          <p className="text-3xl font-bold text-purple-600">{stats.apptStats.find(s => s.status === 'pending')?.count || 0}</p>
         </div>
       </div>
 
-      {/* Appointments Table */}
-      <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
-        <CalendarCheck size={18} className="text-purple-600" /> My Appointments
-      </h2>
-      {loading ? (
-        <div className="text-center text-gray-500 py-4">Loading appointments...</div>
-      ) : appointments.length === 0 ? (
-        <div className="text-center text-gray-500 py-4">No appointments found.</div>
-      ) : (
-        <div className="overflow-x-auto rounded shadow mb-8">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-100 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Time</th>
-                <th className="px-4 py-3">Patient ID</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((a) => (
-                <tr key={a.appointment_id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{new Date(a.appointment_date).toLocaleDateString()}</td>
-                  <td className="px-4 py-2">{a.appointment_time}</td>
-                  <td className="px-4 py-2">{a.patient_id}</td>
-                  <td className="px-4 py-2 capitalize">{a.appointment_type}</td>
-                  <td className="px-4 py-2 capitalize">{a.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white p-4 rounded shadow">
+          <h2 className="text-lg font-semibold mb-2">Appointments by Type</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={stats.typeStats}>
+              <XAxis dataKey="appointment_type" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#7e5bef" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-      )}
-
-      {/* Patients Table */}
-      <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
-        <Users size={18} className="text-purple-600" /> My Patients
-      </h2>
-      {loading ? (
-        <div className="text-center text-gray-500 py-4">Loading patients...</div>
-      ) : patients.length === 0 ? (
-        <div className="text-center text-gray-500 py-4">No patients found.</div>
-      ) : (
-        <div className="overflow-x-auto rounded shadow">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-100 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-3">Patient ID</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patients.map((p) => (
-                <tr key={p.patient_id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{p.patient_id}</td>
-                  <td className="px-4 py-2">{p.first_name} {p.last_name}</td>
-                  <td className="px-4 py-2">{p.phone}</td>
-                  <td className="px-4 py-2">{p.email}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="bg-white p-4 rounded shadow">
+          <h2 className="text-lg font-semibold mb-2">Appointments Over Time</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <AreaChart data={stats.monthlyStats}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Area dataKey="count" fill="#7e5bef" stroke="#7e5bef" />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
-      )}
+      </div>
     </div>
   );
 };

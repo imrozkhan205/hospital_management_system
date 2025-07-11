@@ -31,7 +31,7 @@ const AddDoctor = () => {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className=" max-w-3xl mx-auto">
       <h2 className="text-xl font-bold mb-4">Add Doctor</h2>
       <form
         onSubmit={handleSubmit}

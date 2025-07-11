@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { axiosInstance } from "../lib/axios";
+import { axiosInstance } from "../lib/axios.js";
 import { Calendar, Plus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
@@ -9,6 +9,7 @@ const Appointments = () => {
   const [loading, setLoading] = useState(true);
   const role = localStorage.getItem('role');
   const doctorId = localStorage.getItem('doctorId');
+  const patientId = localStorage.getItem('patientId');
 
   const fetchAppointments = async () => {
   try {
@@ -76,6 +77,8 @@ const Appointments = () => {
               <tr>
                 <th className="px-4 py-3">Patient ID</th>
                 <th className="px-4 py-3">Doctor ID</th>
+                {/* <th className="px-4 py-3">Patient Name</th> */}
+
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Time</th>
                 <th className="px-4 py-3">Type</th>
@@ -88,6 +91,7 @@ const Appointments = () => {
                 <tr key={appt.appointment_id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3">{appt.patient_id}</td>
                   <td className="px-4 py-3">{appt.doctor_id}</td>
+                  {/* <td className="px-4 py-3">{appt.first_name}</td> */}
                   <td className="px-4 py-3">{new Date(appt.appointment_date).toLocaleString()}</td>
                   <td className="px-4 py-3">{appt.appointment_time}</td>
                   <td className="px-4 py-3 capitalize">{appt.appointment_type}</td>

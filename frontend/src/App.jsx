@@ -26,21 +26,33 @@ import Navbar from './components/layout/Navbar';
 import { axiosInstance } from './lib/axios';
 
 function App() {
-  const [authUser, setAuthUser] = useState(null); // Stores { role: 'admin' } etc.
+  // authUser now stores { role: 'admin', id: 'someId' } etc.
+  const [authUser, setAuthUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
+    // Get the linked_id from localStorage based on role
+    const linkedDoctorId = localStorage.getItem('linked_doctor_id');
+    const linkedPatientId = localStorage.getItem('linked_patient_id');
 
     console.log('App.js useEffect: Checking auth status...');
-    console.log('  Token found:', !!token);
-    console.log('  Role:', role);
+    console.log('   Token found:', !!token);
+    console.log('   Role:', role);
+    console.log('   Linked Doctor ID:', linkedDoctorId);
+    console.log('   Linked Patient ID:', linkedPatientId);
 
     if (token && role) {
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setAuthUser({ role });
+      let userId = null;
+      if (role === 'doctor' && linkedDoctorId) {
+        userId = linkedDoctorId;
+      } else if (role === 'patient' && linkedPatientId) {
+        userId = linkedPatientId;
+      }
+      setAuthUser({ role, id: userId }); // Store the ID with the role
     } else {
       setAuthUser(null);
     }
@@ -49,7 +61,7 @@ function App() {
 
   const handleLogout = () => {
     console.log('Logging out...');
-    localStorage.clear();
+    localStorage.clear(); // Clears token, role, and any linked IDs
     delete axiosInstance.defaults.headers.common['Authorization'];
     setAuthUser(null);
     toast.success('Logged out successfully!');
@@ -77,19 +89,19 @@ function App() {
                 {/* Dashboard route: render based on role */}
                 <Route path="/dashboard" element={
                   authUser.role === 'admin' ? <Dashboard />
-                  : authUser.role === 'doctor' ? <DoctorDashboard />
-                  : authUser.role === 'patient' ? <PatientDashboard />
-                  : <Dashboard /> // fallback: default dashboard
+                  : authUser.role === 'doctor' ? <DoctorDashboard doctorId={authUser.id} /> // Pass doctorId
+                  : authUser.role === 'patient' ? <PatientDashboard patientId={authUser.id} /> // Pass patientId
+                  : <Dashboard /> // fallback: default dashboard for unknown roles
                 } />
 
                 {/* Admin routes */}
                 {authUser.role === 'admin' && (
                   <>
-                    <Route path="/patients" element={<Patients />} />
+                    <Route path="/patients" element={<Patients authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path="/patients/add" element={<AddPatient />} />
-                    <Route path="/doctors" element={<Doctors />} />
+                    <Route path="/doctors" element={<Doctors authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path="/doctors/add" element={<AddDoctor />} />
-                    <Route path="/appointments" element={<Appointments />} />
+                    <Route path="/appointments" element={<Appointments authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path="/appointments/add" element={<AddAppointment />} />
                     <Route path="/departments" element={<Departments />} />
                     <Route path="/medical-records" element={<MedicalRecords />} />
@@ -100,20 +112,20 @@ function App() {
                 {/* Doctor routes */}
                 {authUser.role === 'doctor' && (
                   <>
-                    <Route path="/appointments" element={<Appointments />} />
-                    <Route path="/patients" element={<Patients />} />
+                    <Route path="/appointments" element={<Appointments authUser={authUser} />} /> {/* Pass authUser */}
+                    <Route path="/patients" element={<Patients authUser={authUser} />} /> {/* Pass authUser, potentially for doctor's patients */}
                   </>
                 )}
 
                 {/* Patient routes */}
                 {authUser.role === 'patient' && (
                   <>
-                    <Route path="/appointments" element={<Appointments />} />
-                    <Route path="/doctors" element={<Doctors />} />
+                    <Route path="/appointments" element={<Appointments authUser={authUser} />} /> {/* Pass authUser */}
+                    <Route path="/doctors" element={<Doctors authUser={authUser} />} /> {/* Pass authUser */}
                   </>
                 )}
 
-                {/* Catch-all route */}
+                {/* Catch-all route for authenticated users, redirects to dashboard */}
                 <Route path="*" element={<Navigate to="/dashboard" />} />
               </Routes>
             </main>
@@ -123,6 +135,7 @@ function App() {
         // Routes for unauthenticated users
         <Routes>
           <Route path="/login" element={<LoginPage setAuthUser={setAuthUser} />} />
+          {/* Redirect any other path to login if not authenticated */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       )}
