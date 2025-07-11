@@ -1,16 +1,24 @@
+// src/pages/DoctorDashboard.js
 import { useEffect, useState } from 'react';
 import { axiosInstance } from '../lib/axios';
 import { CalendarCheck, Users } from 'lucide-react';
 
-const DoctorDashboard = () => {
+// Receive doctorId as a prop
+const DoctorDashboard = ({ doctorId }) => {
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const doctorId = localStorage.getItem('linked_doctor_id');
-
   useEffect(() => {
     const fetchData = async () => {
+      // Only fetch if doctorId is valid
+      if (!doctorId) {
+        setLoading(false); // No doctorId, nothing to fetch
+        console.log("DoctorDashboard: No doctorId provided, skipping fetch.");
+        return;
+      }
+
+      setLoading(true); // Set loading to true when starting fetch
       try {
         const [apptRes, patientsRes] = await Promise.all([
           axiosInstance.get(`/doctors/${doctorId}/appointments`),
@@ -19,13 +27,16 @@ const DoctorDashboard = () => {
         setAppointments(apptRes.data);
         setPatients(patientsRes.data);
       } catch (err) {
-        console.error('Error fetching doctor data', err);
+        console.error('Error fetching doctor data:', err);
+        // Optionally show a toast error
+        // toast.error("Failed to load doctor dashboard data.");
       } finally {
         setLoading(false);
       }
     };
-    if (doctorId) fetchData();
-  }, [doctorId]);
+
+    fetchData(); // Call fetchData inside useEffect
+  }, [doctorId]); // doctorId is now correctly in the dependency array
 
   return (
     <div className="p-6">
@@ -50,9 +61,9 @@ const DoctorDashboard = () => {
         <CalendarCheck size={18} className="text-purple-600" /> My Appointments
       </h2>
       {loading ? (
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-center text-gray-500 py-4">Loading appointments...</div>
       ) : appointments.length === 0 ? (
-        <div className="text-gray-500">No appointments found.</div>
+        <div className="text-center text-gray-500 py-4">No appointments found.</div>
       ) : (
         <div className="overflow-x-auto rounded shadow mb-8">
           <table className="w-full text-sm text-left">
@@ -68,7 +79,7 @@ const DoctorDashboard = () => {
             <tbody>
               {appointments.map((a) => (
                 <tr key={a.appointment_id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{a.appointment_date}</td>
+                  <td className="px-4 py-2">{new Date(a.appointment_date).toLocaleDateString()}</td>
                   <td className="px-4 py-2">{a.appointment_time}</td>
                   <td className="px-4 py-2">{a.patient_id}</td>
                   <td className="px-4 py-2 capitalize">{a.appointment_type}</td>
@@ -85,9 +96,9 @@ const DoctorDashboard = () => {
         <Users size={18} className="text-purple-600" /> My Patients
       </h2>
       {loading ? (
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-center text-gray-500 py-4">Loading patients...</div>
       ) : patients.length === 0 ? (
-        <div className="text-gray-500">No patients found.</div>
+        <div className="text-center text-gray-500 py-4">No patients found.</div>
       ) : (
         <div className="overflow-x-auto rounded shadow">
           <table className="w-full text-sm text-left">

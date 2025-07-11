@@ -11,21 +11,25 @@ const Patients = () => {
   const doctorId = localStorage.getItem('doctorId');
 
   const fetchPatients = async () => {
-    try {
-      let res;
-      if (role === 'doctor' && doctorId) {
-        res = await axiosInstance.get(`/doctors/${doctorId}/patients`);
-      } else {
-        res = await axiosInstance.get('/patients');
-      }
-      setPatients(res.data);
-    } catch (error) {
-      console.error('Error fetching patients:', error);
-      toast.error('Failed to load patients');
-    } finally {
-      setLoading(false);
+  try {
+    const role = localStorage.getItem('role');
+    let res;
+
+    if (role === 'doctor') {
+      const doctorId = localStorage.getItem('linked_doctor_id');
+      res = await axiosInstance.get(`/doctors/${doctorId}/patients`);
+    } else {
+      res = await axiosInstance.get('/patients'); // admin can see all
     }
-  };
+
+    setPatients(res.data);
+  } catch (error) {
+    toast.error("Failed to fetch patients");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this patient?')) return;

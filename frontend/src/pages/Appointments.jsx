@@ -11,21 +11,28 @@ const Appointments = () => {
   const doctorId = localStorage.getItem('doctorId');
 
   const fetchAppointments = async () => {
-    try {
-      let res;
-      if (role === 'doctor' && doctorId) {
-        res = await axiosInstance.get(`/doctors/${doctorId}/appointments`);
-      } else {
-        res = await axiosInstance.get('/appointments');
-      }
-      setAppointments(res.data);
-    } catch (error) {
-      console.error('Failed to fetch appointments', error);
-      toast.error('Failed to load appointments');
-    } finally {
-      setLoading(false);
+  try {
+    const role = localStorage.getItem('role');
+    let res;
+
+    if (role === 'doctor') {
+      const doctorId = localStorage.getItem('linked_doctor_id');
+      res = await axiosInstance.get(`/doctors/${doctorId}/appointments`);
+    } else if (role === 'patient') {
+      const patientId = localStorage.getItem('linked_patient_id');
+      res = await axiosInstance.get(`/patients/${patientId}/appointments`);
+    } else {
+      res = await axiosInstance.get('/appointments'); // admin gets all
     }
-  };
+
+    setAppointments(res.data);
+  } catch (error) {
+    toast.error("Failed to fetch appointments");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this appointment?")) return;
