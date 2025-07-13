@@ -136,3 +136,21 @@ export const getAppointmentsByDoctorId = async (req, res) => {
     res.status(500).json({ message: "Error fetching appointments", error: err.message });
   }
 };
+
+export const changeStatus = async(req, res) => {
+  const {id} = req.params;
+  const {status} = req.body;
+  try {
+    const [result] = await pool.query(
+      'UPDATE appointments SET status = ? WHERE appointment_id = ?', [status, id]
+    );
+
+    if(result.affectedRows === 0){
+      return res.status(404).json({message: "Appointment not found"});
+    } 
+
+    res.json({message: "Status updated successfully"});
+  } catch (error) {
+    res.status(500).json({message: "Error updating status", error: error.message})
+  }
+}

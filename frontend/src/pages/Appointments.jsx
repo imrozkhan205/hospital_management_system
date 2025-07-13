@@ -11,6 +11,27 @@ const Appointments = () => {
   const doctorId = localStorage.getItem("doctorId");
   const patientId = localStorage.getItem("patientId");
 
+const handleStatusChange = async(appointmentId, newStatus) => {
+  const originalStatus = appointments.find(a => a.appointment_id === appointmentId)?.status;
+  
+  // Optimistic update
+  setAppointments((prev) => prev.map((a) => 
+    a.appointment_id === appointmentId ? {...a, status: newStatus} : a 
+  ));
+  
+  try {
+    await axiosInstance.put(`/appointments/${appointmentId}/status`, {status: newStatus});
+    toast.success('Status updated');
+  } catch (error) {
+    // Rollback on error
+    setAppointments((prev) => prev.map((a) => 
+      a.appointment_id === appointmentId ? {...a, status: originalStatus} : a 
+    ));
+    console.error("Failed to update status:", error);
+    toast.error("Failed to Update the status")
+  }
+}
+
   const fetchAppointments = async () => {
     try {
       const role = localStorage.getItem("role");
@@ -104,7 +125,20 @@ const Appointments = () => {
                   <td className="px-4 py-3 capitalize">
                     {appt.appointment_type}
                   </td>
-                  <td className="px-4 py-3 capitalize">{appt.status}</td>
+                  <td className="px-4 py-3">
+                    <select
+                      value={appt.status}
+                      onChange={(e) =>
+                        handleStatusChange(appt.appointment_id, e.target.value)
+                      }
+                      className="border rounded px-2 py-1 text-sm"
+                    >
+                      <option value="scheduled">Scheduled</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </td>
+
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => handleDelete(appt.appointment_id)}
