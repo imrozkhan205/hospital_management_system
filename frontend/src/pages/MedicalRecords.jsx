@@ -61,15 +61,16 @@ const MedicalRecords = () => {
         <>
           {/* TABLE VIEW: Only on sm and above */}
           <div className="hidden sm:block overflow-x-auto rounded-lg shadow">
-            <table className="w-full min-w-[600px] text-sm text-left text-gray-700">
+            <table className="w-full min-w-[800px] text-sm text-left text-gray-700">
               <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3">Record ID</th>
-                  <th className="px-4 py-3">Patient ID</th>
-                  <th className="px-4 py-3">Doctor ID</th>
+                  <th className="px-4 py-3">Patient Name</th>
+                  <th className="px-4 py-3">Doctor Name</th>
                   <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Diagnosis</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-4 py-3">Lab Results</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -79,8 +80,12 @@ const MedicalRecords = () => {
                     className="border-b hover:bg-gray-50"
                   >
                     <td className="px-4 py-3">{record.record_id}</td>
-                    <td className="px-4 py-3">{record.patient_id}</td>
-                    <td className="px-4 py-3">{record.doctor_id}</td>
+                    <td className="px-4 py-3">
+                      {record.patient_first_name} {record.patient_last_name}
+                    </td>
+                    <td className="px-4 py-3">
+                      {record.doctor_first_name} {record.doctor_last_name}
+                    </td>
                     <td className="px-4 py-3">
                       {record.visit_date
                         ? new Date(record.visit_date).toLocaleDateString(
@@ -93,9 +98,9 @@ const MedicalRecords = () => {
                           )
                         : "N/A"}
                     </td>
-
                     <td className="px-4 py-3">{record.diagnosis}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3">{record.lab_results}</td>
+                    <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => handleDelete(record.record_id)}
                         className="text-red-500 hover:text-red-700"
@@ -120,15 +125,15 @@ const MedicalRecords = () => {
                   <span className="font-medium">Record ID:</span>{" "}
                   {record.record_id}
                 </div>
-                <div className="text-sm text-gray-700">
-                  <span className="font-medium">Patient ID:</span>{" "}
-                  {record.patient_id}
+                <div className="text-sm text-gray-700 mb-2">
+                  <span className="font-medium">Patient:</span>{" "}
+                  {record.patient_first_name} {record.patient_last_name}
                 </div>
-                <div className="text-sm text-gray-700">
-                  <span className="font-medium">Doctor ID:</span>{" "}
-                  {record.doctor_id}
+                <div className="text-sm text-gray-700 mb-2">
+                  <span className="font-medium">Doctor:</span>{" "}
+                  {record.doctor_first_name} {record.doctor_last_name}
                 </div>
-                <div className="text-sm text-gray-700">
+                <div className="text-sm text-gray-700 mb-2">
                   <span className="font-medium">Date:</span>{" "}
                   {record.visit_date
                     ? new Date(record.visit_date).toLocaleDateString("en-IN", {
@@ -138,10 +143,13 @@ const MedicalRecords = () => {
                       })
                     : "N/A"}
                 </div>
-
                 <div className="text-sm text-gray-700 mb-2">
                   <span className="font-medium">Diagnosis:</span>{" "}
                   {record.diagnosis}
+                </div>
+                <div className="text-sm text-gray-700 mb-2">
+                  <span className="font-medium">Lab Results:</span>{" "}
+                  {record.lab_results}
                 </div>
                 <div className="flex justify-end">
                   <button

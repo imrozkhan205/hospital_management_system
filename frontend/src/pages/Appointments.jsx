@@ -130,8 +130,19 @@ const handleStatusChange = async(appointmentId, newStatus) => {
                       value={appt.status}
                       onChange={(e) =>
                         handleStatusChange(appt.appointment_id, e.target.value)
+                        
                       }
-                      className="border rounded px-2 py-1 text-sm"
+                      className="
+    block w-full
+    border border-gray-300 rounded-md
+    shadow-sm
+    py-2 pl-3 pr-10
+    text-sm leading-5
+    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+    bg-white
+    transition ease-in-out duration-150
+    appearance-none
+  "
                     >
                       <option value="scheduled">Scheduled</option>
                       <option value="completed">Completed</option>
