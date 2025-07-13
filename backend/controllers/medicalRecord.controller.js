@@ -34,15 +34,20 @@ export const createMedicalRecord = async (req, res) => {
 // Get all medical records
 export const getMedicalRecords = async (req, res) => {
   try {
-    const [rows] = await pool.query(`
-      SELECT mr.*, p.first_name AS patient_first_name, p.last_name AS patient_last_name,
-             d.first_name AS doctor_first_name, d.last_name AS doctor_last_name
-      FROM medical_records mr
-      LEFT JOIN patients p ON mr.patient_id = p.patient_id
-      LEFT JOIN doctors d ON mr.doctor_id = d.doctor_id
-      ORDER BY mr.created_at DESC
+    const [results] = await pool.query(`
+      SELECT 
+        medical_records.*,
+        patients.first_name as patient_first_name,
+        patients.last_name as patient_last_name,
+        doctors.first_name as doctor_first_name,
+        doctors.last_name as doctor_last_name
+      FROM medical_records
+      JOIN patients ON medical_records.patient_id = patients.patient_id
+      JOIN doctors ON medical_records.doctor_id = doctors.doctor_id
+      ORDER BY medical_records.visit_date DESC
     `);
-    res.json(rows);
+    
+    res.json(results);
   } catch (error) {
     res.status(500).json({ message: "Error fetching medical records", error: error.message });
   }
