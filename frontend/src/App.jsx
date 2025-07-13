@@ -2,8 +2,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-
-// Import your pages
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
@@ -17,13 +15,10 @@ import AddAppointment from './pages/AddAppointment';
 import AddDoctor from './pages/AddDoctor';
 import AddPatient from './pages/AddPatient';
 import AddMedicalRecord from './pages/AddMedicalRecord';
-
-// Import layout components
 import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
-
-// Import axiosInstance for API calls
 import { axiosInstance } from './lib/axios';
+import AllDoctors from './pages/AllDoctors';
 
 function App() {
   // authUser now stores { role: 'admin', id: 'someId' } etc.
@@ -122,6 +117,7 @@ function App() {
                   <>
                     <Route path="/appointments" element={<Appointments authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path="/doctors" element={<Doctors authUser={authUser} />} /> {/* Pass authUser */}
+                    <Route path='/all-doctors' element={<AllDoctors />} />
                   </>
                 )}
 

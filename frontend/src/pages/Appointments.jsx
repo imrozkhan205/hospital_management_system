@@ -125,15 +125,14 @@ const handleStatusChange = async(appointmentId, newStatus) => {
                   <td className="px-4 py-3 capitalize">
                     {appt.appointment_type}
                   </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={appt.status}
-                      onChange={(e) =>
-                        handleStatusChange(appt.appointment_id, e.target.value)
-                        
-                      }
-                      className="
-    block w-full
+                 <td className="px-4 py-3">
+  {role === "doctor" || role === "admin" ? (
+    <select
+      value={appt.status}
+      onChange={(e) =>
+        handleStatusChange(appt.appointment_id, e.target.value)
+      }
+      className="block w-full
     border border-gray-300 rounded-md
     shadow-sm
     py-2 pl-3 pr-10
@@ -143,12 +142,16 @@ const handleStatusChange = async(appointmentId, newStatus) => {
     transition ease-in-out duration-150
     appearance-none
   "
-                    >
-                      <option value="scheduled">Scheduled</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </td>
+    >
+      <option value="Scheduled">Scheduled</option>
+      <option value="Completed">Completed</option>
+      <option value="Cancelled">Cancelled</option>
+    </select>
+  ) : (
+    <span className="capitalize">{appt.status}</span>
+  )}
+</td>
+
 
                   <td className="px-4 py-3 text-right">
                     <button

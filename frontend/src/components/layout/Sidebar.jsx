@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   Home, User, Stethoscope, Calendar, Folder, FileText,
-  SidebarClose, SidebarOpen
+  SidebarClose, SidebarOpen,
+  StethoscopeIcon,
+  LucideHospital,
+  Hospital,
+  Heart,
+  HeartHandshake
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -30,6 +35,7 @@ const Sidebar = () => {
       { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
       { to: "/appointments", icon: <Calendar size={18} />, label: "My Appointments" },
       { to: "/doctors", icon: <Stethoscope size={18} />, label: "My Doctors" },
+      {to: '/all-doctors', icon: <HeartHandshake size={18} />, label: "All doctors" }
     ];
   }
 
