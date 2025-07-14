@@ -19,6 +19,7 @@ import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
 import { axiosInstance } from './lib/axios';
 import AllDoctors from './pages/AllDoctors';
+import AppointmentAvailability from './pages/AppointmentAvailablity';
 
 function App() {
   // authUser now stores { role: 'admin', id: 'someId' } etc.
@@ -118,6 +119,7 @@ function App() {
                     <Route path="/appointments" element={<Appointments authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path="/doctors" element={<Doctors authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path='/all-doctors' element={<AllDoctors />} />
+                    <Route path='/book-appointment/:doctorId' element={<AppointmentAvailability/>} />
                   </>
                 )}
 

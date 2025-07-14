@@ -126,15 +126,13 @@ const Doctors = ({ authUser }) => {
         <div className="overflow-x-auto rounded-lg shadow">
           <table className="w-full table-auto text-sm text-left text-gray-700">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-3">ID</th>
+              <tr><th className="px-4 py-3">ID</th>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">Specialization</th>
                 <th className="px-4 py-3">Experience (yrs)</th>
-                {isAdmin && <th className="px-4 py-3 text-right">Actions</th>} {/* Actions column visible only to admins */}
-              </tr>
+                {isAdmin && <th className="px-4 py-3 text-right">Actions</th>}</tr>
             </thead>
             <tbody>
               {doctors.map((doc) => (

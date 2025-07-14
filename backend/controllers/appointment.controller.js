@@ -154,3 +154,118 @@ export const changeStatus = async(req, res) => {
     res.status(500).json({message: "Error updating status", error: error.message})
   }
 }
+
+// ✅ Get booked slots for a selected date
+// controllers/appointment.controller.js
+export const getAppointmentsByDate = async (req, res) => {
+  const { date, doctorId } = req.query;
+
+  if (!date) {
+    return res.status(400).json({ message: 'Date is required' });
+  }
+
+  try {
+    let query = `SELECT appointment_time FROM appointments WHERE appointment_date = ?`;
+    const params = [date];
+    
+    if (doctorId) {
+      query += ` AND doctor_id = ?`;
+      params.push(doctorId);
+    }
+
+    const [rows] = await pool.query(
+  `SELECT TIME_FORMAT(appointment_time, '%H:%i') as appointment_time 
+   FROM appointments 
+   WHERE doctor_id = ? AND appointment_date = ?`,
+  [doctorId, date]
+);
+const bookedSlots = rows.map(r => r.appointment_time); // already '11:00'
+
+
+    
+    res.json({ bookedSlots });
+  } catch (error) {
+    console.error('Error fetching appointments by date:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+// ✅ Book a new appointment (simple)
+export const createAppointmentSimple = async (req, res) => {
+  const { date, time, doctor_id } = req.body;
+  // get patient ID from logged in user (assuming you saved it in token & added to req.user)
+  const patient_id = req.user?.patient_id;
+
+  if (!date || !time) {
+    return res.status(400).json({ message: 'Date and time are required' });
+  }
+
+  try {
+    // check if slot already booked
+    const [existing] = await pool.query(
+      `SELECT * FROM appointments WHERE appointment_date = ? AND appointment_time = ?`,
+      [date, time]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({ message: 'Time slot already booked' });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id, status)
+       VALUES (?, ?, ?, ?, ?)`,
+      [date, time, patient_id, doctor_id || null, 'Scheduled']
+    );
+
+    res.status(201).json({
+      message: 'Appointment booked successfully',
+      appointment_id: result.insertId
+    });
+  } catch (error) {
+    console.error('Error booking appointment:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// controllers/appointments.controller.js
+export const getAvailableSlots = async (req, res) => {
+  const { doctorId, date } = req.query;
+
+  if (!doctorId || !date) {
+    return res.status(400).json({ message: 'doctorId and date are required' });
+  }
+
+  try {
+    console.log('doctorId:', doctorId, 'date:', date);
+
+    const [rows] = await pool.query(
+      `SELECT appointment_time FROM appointments 
+       WHERE doctor_id = ? AND appointment_date = ?`,
+      [doctorId, date]
+    );
+
+    console.log('Raw rows:', rows);
+
+    const bookedSlots = rows.map(r => {
+      const t = String(r.appointment_time);  // e.g. "14:00:00"
+      return t.split(':').slice(0,2).join(':'); // → "14:00"
+    });
+
+    console.log('Booked slots:', bookedSlots);
+
+    const allSlots = [
+      '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+      '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
+    ];
+
+    const availableSlots = allSlots.filter(time => !bookedSlots.includes(time));
+
+    res.json({
+      bookedSlots,
+      availableSlots,
+      allSlots
+    });
+  } catch (error) {
+    console.error('Error fetching slots:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
