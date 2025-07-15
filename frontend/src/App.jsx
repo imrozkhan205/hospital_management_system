@@ -110,13 +110,14 @@ function App() {
                   <>
                     <Route path="/appointments" element={<Appointments authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path="/patients" element={<Patients authUser={authUser} />} /> {/* Pass authUser, potentially for doctor's patients */}
+                    <Route path="/appointments/add" element={<AddAppointment />} />
                   </>
                 )}
 
                 {/* Patient routes */}
                 {authUser.role === 'patient' && (
                   <>
-                    <Route path="/appointments" element={<Appointments authUser={authUser} />} /> {/* Pass authUser */}
+                    <Route path="/appointments" element={<Appointments authUser={authUser} />} /> Pass authUser
                     <Route path="/doctors" element={<Doctors authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path='/all-doctors' element={<AllDoctors />} />
                     <Route path='/book-appointment/:doctorId' element={<AppointmentAvailability/>} />

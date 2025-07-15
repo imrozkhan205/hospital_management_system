@@ -10,6 +10,7 @@ const Appointments = () => {
   const role = localStorage.getItem("role");
   const doctorId = localStorage.getItem("doctorId");
   const patientId = localStorage.getItem("patientId");
+  
 
 const handleStatusChange = async(appointmentId, newStatus) => {
   const originalStatus = appointments.find(a => a.appointment_id === appointmentId)?.status;
@@ -81,7 +82,7 @@ const handleStatusChange = async(appointmentId, newStatus) => {
           Appointments
         </h1>
         <Link
-          to="/appointments/add"
+          to={role === "admin" || role === "doctor" ? "/appointments/add" : "/all-doctors"}
           className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow"
         >
           <Plus size={18} className="mr-2" />
