@@ -227,3 +227,18 @@ export const getDoctorStats = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch doctor stats", error: err.message });
   }
 };
+// GET /api/doctors/:id
+export const getDoctorById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query(
+      `SELECT doctor_id, first_name, last_name, specialization FROM doctors WHERE doctor_id = ?`,
+      [id]
+    );
+    if (rows.length === 0) return res.status(404).json({ message: 'Doctor not found' });
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching doctor:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

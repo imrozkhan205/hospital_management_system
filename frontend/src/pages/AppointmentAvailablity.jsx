@@ -8,7 +8,7 @@ import {
   AlertCircle,
   User,
 } from "lucide-react";
-import { axiosInstance } from "../lib/axios";
+import { axiosInstance } from "../lib/axios.js";
 
 const AppointmentAvailability = () => {
   const { doctorId } = useParams();
@@ -19,6 +19,24 @@ const AppointmentAvailability = () => {
   const [bookedAppointments, setBookedAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [doctorInfo, setDoctorInfo] = useState(null);
+
+useEffect(() => {
+  const fetchDoctorInfo = async () => {
+    try {
+      const res = await axiosInstance.get(`/doctors/${doctorId}`);
+
+      setDoctorInfo({
+        name: `Dr. ${res.data.first_name} ${res.data.last_name}`,
+        specialization: res.data.specialization
+      });
+    } catch (error) {
+      console.error('Error fetching doctor info:', error);
+    }
+  };
+  fetchDoctorInfo();
+}, [doctorId]);
+
 
   // Standard time slots (you can modify these as needed)
   const standardSlots = [
@@ -186,6 +204,17 @@ const AppointmentAvailability = () => {
         <p className="text-gray-600">
           Check available time slots and book your appointment
         </p>
+        {doctorInfo ? (
+  <p className="font-bold text-gray-700 text-lg ld mt-2">
+    {doctorInfo.name}
+    {doctorInfo.specialization && (
+      <span className="ml-2 text-gray-700">— {doctorInfo.specialization}</span>
+    )}
+  </p>
+) : (
+  <p className="text-gray-500 text-sm mt-1">Loading doctor information...</p>
+)}
+
       </div>
 
       {/* Date selection */}
@@ -299,95 +328,6 @@ const AppointmentAvailability = () => {
         )}
       </div>
 
-      {/* Booked Appointments List */}
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <Clock className="w-5 h-5 text-blue-600" />
-          Booked Appointments
-        </h3>
-
-        {loading ? (
-          <div className="flex justify-center items-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Loading appointments...</span>
-          </div>
-        ) : bookedAppointments.length > 0 ? (
-          <div className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Time
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Patient
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Reason
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {bookedAppointments.map((appointment) => (
-                    <tr
-                      key={`${appointment.appointment_date}-${appointment.appointment_time}`}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <Clock className="flex-shrink-0 h-5 w-5 text-blue-500 mr-2" />
-                          <span className="font-medium">
-                            {formatTime(appointment.appointment_time)}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <User className="flex-shrink-0 h-5 w-5 text-gray-500 mr-2" />
-                          <span>
-                            {appointment.first_name || appointment.last_name
-                              ? `${appointment.first_name} ${appointment.last_name}`
-                              : `Patient ID: ${appointment.patient_id}`}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(
-                            appointment.status
-                          )}`}
-                        >
-                          {appointment.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {appointment.reason_for_visit || "Not specified"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {appointment.appointment_date
-                          ? new Date(
-                              appointment.appointment_date
-                            ).toLocaleDateString()
-                          : "Not specified"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-            No appointments booked for this date.
-          </div>
-        )}
-      </div>
 
       {/* Legend */}
       <div className="mt-6 border-t pt-4">

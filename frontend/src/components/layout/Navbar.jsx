@@ -1,5 +1,5 @@
 // src/components/layout/Navbar.js
-import { Hospital, LogOut } from "lucide-react";
+import { Hospital, LogOut, UserRound } from "lucide-react";
 
 // Receive authUserRole as a prop
 const Navbar = ({ handleLogout, authUserRole }) => {
@@ -11,7 +11,7 @@ const Navbar = ({ handleLogout, authUserRole }) => {
   return (
     <header className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
       <h1 className="flex gap-2 text-2xl font-bold text-gray-800 tracking-tight">
-        <Hospital className="mt-1"/>
+        <UserRound className="mt-1"/>
         {title}
       </h1>
       <button

@@ -15,6 +15,7 @@ router.get('/', getAppointmentsByDate);
 router.post('/simple', createAppointmentSimple)
 router.get('/slots', getAvailableSlots)
 
+
 // POST /api/appointments
 router.post('/', createAppointmentSimple);
 
