@@ -144,7 +144,7 @@ const Doctors = ({ authUser }) => {
                   <td className="px-4 py-3">{doc.email}</td>
                   <td className="px-4 py-3">{doc.phone}</td>
                   <td className="px-4 py-3">{doc.specialization}</td>
-                  <td className="px-4 py-3">{doc.experience_years}</td>
+                  {doc.experience_years ? ( <td className="px-4 py-3">{doc.experience_years}</td>) : (<p className="px-4 py-3">N/A</p>)}
                   {isAdmin && ( // Delete button visible only to admins
                     <td className="px-4 py-3 text-right">
                       <button

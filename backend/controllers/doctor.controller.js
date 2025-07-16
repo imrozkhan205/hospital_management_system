@@ -20,14 +20,15 @@ export const createDoctor = async (req, res) => {
     specialization,
     experience_years,
     username,
-    password
+    password,
+     available_from, available_to
   } = req.body;
 
   try {
     // 1. Add doctor
     const [doctorResult] = await pool.query(
-      "INSERT INTO doctors (first_name, last_name, email, phone, specialization, experience_years) VALUES (?, ?, ?, ?, ?, ?)",
-      [first_name, last_name, email, phone, specialization, experience_years]
+      "INSERT INTO doctors (first_name, last_name, email, phone, specialization, experience_years,  available_from, available_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [first_name, last_name, email, phone, specialization,experience_years, available_from, available_to ]
     );
     const doctor_id = doctorResult.insertId;
 

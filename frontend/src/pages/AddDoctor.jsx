@@ -83,9 +83,27 @@ const AddDoctor = () => {
           onChange={handleChange}
           placeholder="Experience (years)"
           type="number"
+          onWheel={(e) => e.target.blur()}
           required
           className="border p-2 rounded"
         />
+        <input
+          type="time"
+          name="available_from"
+          value={form.available_from}
+          onChange={handleChange}
+          className="border px-3 py-2 rounded"
+          required
+        />
+        <input
+          type="time"
+          name="available_to"
+          value={form.available_to}
+          onChange={handleChange}
+          className="border px-3 py-2 rounded"
+          required
+        />
+
         <input
           name="username"
           value={form.username}

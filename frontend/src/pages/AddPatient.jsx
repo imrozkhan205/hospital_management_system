@@ -21,6 +21,9 @@ const AddPatient = () => {
     insurance_provider: "",
     insurance_policy_number: "",
     allergies: "",
+    // Add new fields for login credentials
+    username: "", // Added username
+    password: "", // Added password
   });
 
   const handleChange = (e) => {
@@ -35,15 +38,19 @@ const AddPatient = () => {
     e.preventDefault();
     try {
       console.log("Form data being sent:", formData);
-      const response = await axiosInstance.post("/patients", formData);
+      const response = await axiosInstance.post("/patients", formData); // Ensure your backend /patients endpoint handles username/password
       console.log("Response:", response.data);
-      toast.success("Patient added successfully");
+      toast.success("Patient added successfully with login credentials"); // Updated toast message
       navigate("/patients");
     } catch (error) {
       console.error("Full error object:", error);
       console.error("Error response:", error.response?.data);
       console.error("Error status:", error.response?.status);
-      toast.error(error.response?.data?.message || error.response?.data?.error || "Failed to add patient");
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to add patient"
+      );
     }
   };
 
@@ -177,6 +184,26 @@ const AddPatient = () => {
           value={formData.allergies}
           onChange={handleChange}
           className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+
+        {/* New fields for username and password */}
+        <input
+          type="text"
+          name="username"
+          placeholder="Username for login"
+          value={formData.username}
+          onChange={handleChange}
+          className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+          required // Make username required for login
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+          required // Make password required for login
         />
 
         <div className="sm:col-span-2 flex justify-end">
