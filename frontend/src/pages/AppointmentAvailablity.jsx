@@ -18,6 +18,9 @@ const AppointmentAvailability = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [doctorInfo, setDoctorInfo] = useState(null);
+  const [selectedSlotToBook, setSelectedSlotToBook] = useState(null);
+const [showConfirmModal, setShowConfirmModal] = useState(false);
+
 
   // Fetch doctor info (including available_from & available_to)
   useEffect(() => {
@@ -223,7 +226,13 @@ const AppointmentAvailability = () => {
             {timeSlots.map((slot) => (
               <div
                 key={slot.time}
-                onClick={() => slot.status === "available" && handleBookAppointment(slot.time)}
+                onClick={() => {
+  if (slot.status === "available") {
+    setSelectedSlotToBook(slot.time);
+    setShowConfirmModal(true);
+  }
+}}
+
                 className={`p-4 rounded-lg border-2 ${slot.status === "available"
                   ? "bg-green-100 text-green-800 border-green-200 hover:shadow-md cursor-pointer transform hover:scale-105"
                   : "bg-red-100 text-red-800 border-red-200 cursor-not-allowed"
@@ -256,6 +265,36 @@ const AppointmentAvailability = () => {
           </div>
         </div>
       </div>
+      {showConfirmModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+      <h2 className="text-lg font-semibold mb-4">Confirm Appointment</h2>
+      <p className="mb-4 text-gray-700">
+        Book appointment with <span className="font-medium px-1">{doctorInfo?.name}</span> 
+         on <span className="font-medium">{ formatDate(selectedDate)}</span> 
+        at <span className="font-medium">{selectedSlotToBook}</span>?
+      </p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowConfirmModal(false)}
+          className="px-3 py-1 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={async () => {
+            setShowConfirmModal(false);
+            await handleBookAppointment(selectedSlotToBook);
+          }}
+          className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
