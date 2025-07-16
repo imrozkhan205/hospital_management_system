@@ -233,7 +233,9 @@ export const getDoctorById = async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await pool.query(
-      `SELECT doctor_id, first_name, last_name, specialization FROM doctors WHERE doctor_id = ?`,
+      `SELECT doctor_id, first_name, last_name, specialization, available_from, available_to 
+       FROM doctors 
+       WHERE doctor_id = ?`,
       [id]
     );
     if (rows.length === 0) return res.status(404).json({ message: 'Doctor not found' });
