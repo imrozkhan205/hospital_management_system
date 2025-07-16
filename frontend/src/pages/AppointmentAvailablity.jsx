@@ -97,46 +97,45 @@ const AppointmentAvailability = () => {
 
   // Book an appointment
   const handleBookAppointment = async (time) => {
-    try {
-      await axiosInstance.post(
-        "/appointments",
-        {
-          doctorId,
-          date: selectedDate,
-          time: time + ":00",
-          status: "Scheduled",
+  try {
+    await axiosInstance.post(
+      "/appointments/simple",
+      {
+        doctor_id: doctorId,
+        date: selectedDate,
+        time: time + ":00",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      alert(`Appointment booked for ${time} on ${selectedDate}`);
+      }
+    );
+    alert(`Appointment booked for ${time} on ${selectedDate}`);
 
-      // Refresh appointments
-      const standardSlots = generateTimeSlots(
-        doctorInfo.available_from,
-        doctorInfo.available_to
-      );
-      const res = await axiosInstance.get(
-        `/appointments/doctor/${doctorId}?date=${selectedDate}`
-      );
-      const appointments = Array.isArray(res.data) ? res.data : [];
-      const bookedTimes = appointments.map((a) =>
-        a.appointment_time.substring(0, 5)
-      );
-      setTimeSlots(
-        standardSlots.map((time) => ({
-          time,
-          status: bookedTimes.includes(time) ? "booked" : "available",
-        }))
-      );
-    } catch (error) {
-      console.error("Booking failed:", error);
-      alert(error.response?.data?.message || "Failed to book appointment");
-    }
-  };
+    // Refresh appointments after booking
+    const standardSlots = generateTimeSlots(
+      doctorInfo.available_from,
+      doctorInfo.available_to
+    );
+    const res = await axiosInstance.get(
+      `/appointments/doctor/${doctorId}?date=${selectedDate}`
+    );
+    const appointments = Array.isArray(res.data) ? res.data : [];
+    const bookedTimes = appointments.map((a) =>
+      a.appointment_time.substring(0, 5)
+    );
+    setTimeSlots(
+      standardSlots.map((t) => ({
+        time: t,
+        status: bookedTimes.includes(t) ? "booked" : "available",
+      }))
+    );
+  } catch (error) {
+    console.error("Booking failed:", error);
+    alert(error.response?.data?.message || "Failed to book appointment");
+  }
+};
 
   const availableCount = timeSlots.filter((s) => s.status === "available").length;
   const totalSlots = timeSlots.length;
