@@ -192,7 +192,7 @@ const bookedSlots = rows.map(r => r.appointment_time); // already '11:00'
 export const createAppointmentSimple = async (req, res) => {
   const { date, time, doctor_id } = req.body;
   // get patient ID from logged in user (assuming you saved it in token & added to req.user)
-  const patient_id = req.user?.patient_id;
+  const patient_id = req.user?.linked_patient_id;
 
   if (!date || !time) {
     return res.status(400).json({ message: 'Date and time are required' });
