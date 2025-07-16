@@ -155,8 +155,7 @@ export const changeStatus = async(req, res) => {
   }
 }
 
-// ✅ Get booked slots for a selected date
-// controllers/appointment.controller.js
+// Get booked slots for a selected date
 export const getAppointmentsByDate = async (req, res) => {
   const { date, doctorId } = req.query;
 
@@ -189,7 +188,7 @@ const bookedSlots = rows.map(r => r.appointment_time); // already '11:00'
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-// ✅ Book a new appointment (simple)
+// Book a new appointment (simple)
 export const createAppointmentSimple = async (req, res) => {
   const { date, time, doctor_id } = req.body;
   // get patient ID from logged in user (assuming you saved it in token & added to req.user)
@@ -267,5 +266,29 @@ export const getAvailableSlots = async (req, res) => {
   } catch (error) {
     console.error('Error fetching slots:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// controllers/appointments.controller.js
+export const getAppointmentsByDoctorAndDate = async (req, res) => {
+  const { doctorId } = req.params;
+  const { date } = req.query;
+
+  if (!date) {
+    return res.status(400).json({ message: "Date is required" });
+  }
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT appointment_time, appointment_date, status 
+       FROM appointments 
+       WHERE doctor_id = ? AND appointment_date = ?`,
+      [doctorId, date]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching appointments by doctor and date:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

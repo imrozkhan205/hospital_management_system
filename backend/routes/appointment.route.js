@@ -1,22 +1,39 @@
 import express from 'express';
-import { changeStatus, createAppointment, createAppointmentSimple, deleteAppointment, getAppointments, getAppointmentsByDate, getAppointmentsByDoctorId, getAvailableSlots, updateAppointment } from '../controllers/appointment.controller.js';
+import {
+  changeStatus,
+  createAppointment,
+  createAppointmentSimple,
+  deleteAppointment,
+  getAppointments,
+  getAppointmentsByDoctorAndDate,
+  getAvailableSlots,
+  updateAppointment
+} from '../controllers/appointment.controller.js';
 import { verifyToken } from '../middleware/auth.middleware.js';
 
-const router = express.Router()
-router.use(verifyToken)
+const router = express.Router();
+router.use(verifyToken);
 
-router.post('/', createAppointment)
-router.get('/', getAppointments)
-router.put('/:id', updateAppointment)
-router.delete('/:id', deleteAppointment)
-router.get("/doctor/:doctor_id", getAppointmentsByDoctorId);
-router.put('/:id/status', changeStatus)
-router.get('/', getAppointmentsByDate);
-router.post('/simple', createAppointmentSimple)
-router.get('/slots', getAvailableSlots)
+// All appointments (admin)
+router.get('/', getAppointments);  
 
+// Create appointment (admin or complex version)
+router.post('/', createAppointment);
 
-// POST /api/appointments
-router.post('/', createAppointmentSimple);
+// Create simple appointment (patient self-book)
+router.post('/simple', createAppointmentSimple);
+
+// Update / Delete
+router.put('/:id', updateAppointment);
+router.delete('/:id', deleteAppointment);
+
+// Change status
+router.put('/:id/status', changeStatus);
+
+// Get available slots for a doctor on a date
+router.get('/slots', getAvailableSlots);
+
+// Get appointments by doctor and date
+router.get('/doctor/:doctorId', getAppointmentsByDoctorAndDate);
 
 export default router;
