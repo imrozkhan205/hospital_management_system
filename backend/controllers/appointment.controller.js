@@ -200,25 +200,42 @@ export const createAppointmentSimple = async (req, res) => {
 
   try {
     // check if slot already booked
-    const [existing] = await pool.query(
-      `SELECT * FROM appointments WHERE appointment_date = ? AND appointment_time = ?`,
-      [date, time]
-    );
+// check if the patient already has an appointment with the same doctor on the same day
+const [existing] = await pool.query(
+  `SELECT * FROM appointments 
+   WHERE patient_id = ? AND doctor_id = ? AND appointment_date = ?`,
+  [patient_id, doctor_id, date]
+);
 
-    if (existing.length > 0) {
-      return res.status(409).json({ message: 'Time slot already booked' });
-    }
+if (existing.length > 0) {
+  return res.status(409).json({
+    message: "You already have an appointment with this doctor on this date"
+  });
+}
 
-    const [result] = await pool.query(
-      `INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id, status)
-       VALUES (?, ?, ?, ?, ?)`,
-      [date, time, patient_id, doctor_id || null, 'Scheduled']
-    );
+// check if this specific time slot is already booked for the same doctor
+const [slotBooked] = await pool.query(
+  `SELECT * FROM appointments 
+   WHERE doctor_id = ? AND appointment_date = ? AND appointment_time = ?`,
+  [doctor_id, date, time]
+);
 
-    res.status(201).json({
-      message: 'Appointment booked successfully',
-      appointment_id: result.insertId
-    });
+if (slotBooked.length > 0) {
+  return res.status(409).json({ message: 'This time slot is already booked' });
+}
+
+// insert appointment
+const [result] = await pool.query(
+  `INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id, status)
+   VALUES (?, ?, ?, ?, ?)`,
+  [date, time, patient_id, doctor_id, 'Scheduled']
+);
+
+res.status(201).json({
+  message: 'Appointment booked successfully',
+  appointment_id: result.insertId
+});
+
   } catch (error) {
     console.error('Error booking appointment:', error);
     res.status(500).json({ message: 'Internal server error' });
