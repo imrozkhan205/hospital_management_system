@@ -137,23 +137,35 @@ export const getAppointmentsByDoctorId = async (req, res) => {
   }
 };
 
-export const changeStatus = async(req, res) => {
-  const {id} = req.params;
-  const {status} = req.body;
+// PUT /appointments/:id/status
+export const changeStatus = async (req, res) => {
+  const { id } = req.params;
+  let { status } = req.body;
+
+  // Normalize status to lowercase
+  status = status.toLowerCase();
+
+  if (!['scheduled', 'completed', 'cancelled'].includes(status)) {
+    return res.status(400).json({ message: "Invalid status value" });
+  }
+
   try {
     const [result] = await pool.query(
-      'UPDATE appointments SET status = ? WHERE appointment_id = ?', [status, id]
+      'UPDATE appointments SET status = ? WHERE appointment_id = ?',
+      [status, id]
     );
 
-    if(result.affectedRows === 0){
-      return res.status(404).json({message: "Appointment not found"});
-    } 
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
 
-    res.json({message: "Status updated successfully"});
+    res.json({ message: "Status updated successfully" });
   } catch (error) {
-    res.status(500).json({message: "Error updating status", error: error.message})
+    console.error("Error updating status:", error);
+    res.status(500).json({ message: "Error updating status", error: error.message });
   }
-}
+};
+
 
 // Get booked slots for a selected date
 export const getAppointmentsByDate = async (req, res) => {

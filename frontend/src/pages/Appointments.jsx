@@ -12,26 +12,33 @@ const Appointments = () => {
   const patientId = localStorage.getItem("patientId");
   
 
-const handleStatusChange = async(appointmentId, newStatus) => {
+const handleStatusChange = async (appointmentId, newStatus) => {
+  newStatus = newStatus.toLowerCase(); // ensure always lowercase
   const originalStatus = appointments.find(a => a.appointment_id === appointmentId)?.status;
-  
-  // Optimistic update
-  setAppointments((prev) => prev.map((a) => 
-    a.appointment_id === appointmentId ? {...a, status: newStatus} : a 
-  ));
-  
+
+  setAppointments((prev) =>
+    prev.map((a) =>
+      a.appointment_id === appointmentId ? { ...a, status: newStatus } : a
+    )
+  );
+
   try {
-    await axiosInstance.put(`/appointments/${appointmentId}/status`, {status: newStatus});
-    toast.success('Status updated');
+    await axiosInstance.put(`/appointments/${appointmentId}/status`, {
+      status: newStatus
+    });
+    toast.success("Status updated");
   } catch (error) {
-    // Rollback on error
-    setAppointments((prev) => prev.map((a) => 
-      a.appointment_id === appointmentId ? {...a, status: originalStatus} : a 
-    ));
+    setAppointments((prev) =>
+      prev.map((a) =>
+        a.appointment_id === appointmentId ? { ...a, status: originalStatus } : a
+      )
+    );
     console.error("Failed to update status:", error);
-    toast.error("Failed to Update the status")
+    toast.error("Failed to update status");
   }
-}
+};
+
+
 
   const fetchAppointments = async () => {
     try {
@@ -128,12 +135,12 @@ const handleStatusChange = async(appointmentId, newStatus) => {
                   </td>
                  <td className="px-4 py-3">
   {role === "doctor" || role === "admin" ? (
-    <select
-      value={appt.status}
-      onChange={(e) =>
-        handleStatusChange(appt.appointment_id, e.target.value)
-      }
-      className="block w-full
+<select
+  value={appt.status} // now use actual lowercase value from DB
+  onChange={(e) =>
+    handleStatusChange(appt.appointment_id, e.target.value)
+  }
+  className="block w-full
     border border-gray-300 rounded-md
     shadow-sm
     py-2 pl-3 pr-10
@@ -143,17 +150,16 @@ const handleStatusChange = async(appointmentId, newStatus) => {
     transition ease-in-out duration-150
     appearance-none
   "
-    >
-      <option value="Scheduled">Scheduled</option>
-      <option value="Completed">Completed</option>
-      <option value="Cancelled">Cancelled</option>
-    </select>
+>
+  <option value="scheduled">Scheduled</option>
+  <option value="completed">Completed</option>
+  <option value="cancelled">Cancelled</option>
+</select>
+
   ) : (
     <span className="capitalize">{appt.status}</span>
   )}
 </td>
-
-
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => handleDelete(appt.appointment_id)}

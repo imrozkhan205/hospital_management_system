@@ -25,35 +25,7 @@ const AddAppointment = () => {
 
   // Get the user's role
   const role = localStorage.getItem("role"); // Ensure role is correctly set in local storage
-
-  const generateTimeSlots = () => {
-    const slots = [];
-    let start = new Date();
-    start.setHours(9, 30, 0, 0, 0, 0); // 9:30 AM
-
-    const end = new Date();
-    end.setHours(17, 0, 0, 0, 0, 0); // 5:00 PM
-
-    while (start < end) {
-      const next = new Date(start.getTime() + 30 * 60000); // add 30 mins
-      const startMinutes = String(start.getMinutes()).padStart(2, '0');
-      const startSeconds = String(start.getSeconds()).padStart(2, '0');
-      const startHours = String(start.getHours()).padStart(2, '0');
-      const nextMinutes = String(next.getMinutes()).padStart(2, '0');
-      const nextSeconds = String(next.getSeconds()).padStart(2, '0');
-      const nextHours = String(next.getHours()).padStart(2, '0');
-
-      const slot = `${startHours}:${startMinutes}:${startSeconds} - ${nextHours}:${nextMinutes}:${nextSeconds}`;
-      slots.push(slot);
-      start = next;
-    }
-    return slots;
-  };
-
-  useEffect(() => {
-    setTimeSlots(generateTimeSlots());
-  }, []);
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -72,17 +44,47 @@ const AddAppointment = () => {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+  const { name, value } = e.target;
+  const newValue = (name === "patient_id" || name === "doctor_id")
+    ? Number(value)
+    : value;
 
-    const newValue = (name === "patient_id" || name === "doctor_id")
-      ? Number(value)
-      : value;
+  setFormData((prev) => ({
+    ...prev,
+    [name]: newValue,
+  }));
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-  };
+  if (name === "doctor_id") {
+    const selectedDoctor = doctors.find(d => d.doctor_id === Number(value));
+    if (selectedDoctor) {
+      const slots = generateTimeSlotsFromAvailability(selectedDoctor.available_from, selectedDoctor.available_to);
+      setTimeSlots(slots);
+    } else {
+      setTimeSlots([]);
+    }
+  }
+};
+
+const generateTimeSlotsFromAvailability = (from, to) => {
+  if (!from || !to) return [];
+
+  const slots = [];
+  let start = new Date(`1970-01-01T${from}`);
+  const end = new Date(`1970-01-01T${to}`);
+
+  while (start < end) {
+    const next = new Date(start.getTime() + 30 * 60000); // 30 mins
+    if (next > end) break;
+
+    const format = (date) => date.toTimeString().split(' ')[0]; // "HH:MM:SS"
+    const slot = `${format(start)} - ${format(next)}`;
+    slots.push(slot);
+    start = next;
+  }
+  return slots;
+};
+
+
 
   // Handler for Headless UI Listbox (appointment_time)
   const handleTimeSlotChange = (selectedTime) => {
