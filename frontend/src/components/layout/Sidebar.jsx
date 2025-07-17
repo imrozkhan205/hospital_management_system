@@ -10,8 +10,7 @@ import {
   HeartHandshake
 } from 'lucide-react';
 
-const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+const Sidebar = ({ authUserRole, collapsed, setCollapsed }) => {
   const role = localStorage.getItem('role');
 
   // Default admin links
@@ -41,10 +40,11 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`h-screen bg-white border-r p-4 transition-all duration-300 ease-in-out ${
-        collapsed ? 'w-20' : 'w-64'
-      }`}
-    >
+  className={`fixed top-0 left-0 h-screen bg-white border-r p-4 z-40 transition-all duration-300 ease-in-out ${
+    collapsed ? 'w-20' : 'w-64'
+  }`}
+>
+
       {/* Toggle */}
       <div className="flex justify-between items-center mb-6">
         {!collapsed && (

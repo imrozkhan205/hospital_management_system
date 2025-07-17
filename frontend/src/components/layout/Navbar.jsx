@@ -1,5 +1,5 @@
 // src/components/layout/Navbar.js
-import { Hospital, LogOut, UserRound } from "lucide-react";
+import { LogOut, UserRound } from "lucide-react";
 
 // Receive authUserRole as a prop
 const Navbar = ({ handleLogout, authUserRole }) => {

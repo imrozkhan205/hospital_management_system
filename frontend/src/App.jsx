@@ -20,11 +20,14 @@ import Navbar from './components/layout/Navbar';
 import { axiosInstance } from './lib/axios';
 import AllDoctors from './pages/AllDoctors';
 import AppointmentAvailability from './pages/AppointmentAvailablity';
+import LogoutConfirm from './components/Logout';
+
 
 function App() {
   // authUser now stores { role: 'admin', id: 'someId' } etc.
   const [authUser, setAuthUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,14 +58,25 @@ function App() {
     setLoading(false);
   }, []);
 
-  const handleLogout = () => {
-    console.log('Logging out...');
-    localStorage.clear(); // Clears token, role, and any linked IDs
-    delete axiosInstance.defaults.headers.common['Authorization'];
-    setAuthUser(null);
-    toast.success('Logged out successfully!');
-    navigate('/login');
-  };
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+const handleLogout = () => {
+  setShowLogoutConfirm(true);
+};
+
+const confirmLogout = () => {
+  localStorage.clear();
+  delete axiosInstance.defaults.headers.common['Authorization'];
+  setAuthUser(null);
+  toast.success('Logged out successfully!');
+  navigate('/login');
+  setShowLogoutConfirm(false);
+};
+
+const cancelLogout = () => {
+  setShowLogoutConfirm(false);
+};
+
 
   if (loading) {
     return (
@@ -77,8 +91,9 @@ function App() {
       <Toaster position="top-right" reverseOrder={false} />
       {authUser ? (
         <div className="flex min-h-screen">
-          <Sidebar authUserRole={authUser.role} />
-          <div className="flex-1 flex flex-col">
+          <Sidebar authUserRole={authUser.role} collapsed={collapsed} setCollapsed={setCollapsed} />
+
+         <div className={`flex-1 flex flex-col transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-64'}`}>
             <Navbar handleLogout={handleLogout} authUserRole={authUser.role} />
             <main className="flex-grow p-6 bg-gray-50">
               <Routes>
@@ -138,6 +153,10 @@ function App() {
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       )}
+      {showLogoutConfirm && (
+  <LogoutConfirm onConfirm={confirmLogout} onCancel={cancelLogout} />
+)}
+
     </>
   );
 }
