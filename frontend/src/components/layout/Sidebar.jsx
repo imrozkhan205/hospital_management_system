@@ -1,19 +1,11 @@
-import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   Home, User, Stethoscope, Calendar, Folder, FileText,
-  SidebarClose, SidebarOpen,
-  StethoscopeIcon,
-  LucideHospital,
-  Hospital,
-  Heart,
-  HeartHandshake
+  SidebarClose, SidebarOpen, HeartHandshake, LogOut
 } from 'lucide-react';
-
-const Sidebar = ({ authUserRole, collapsed, setCollapsed }) => {
+const Sidebar = ({ authUserRole, collapsed, setCollapsed, handleLogout }) => {
   const role = localStorage.getItem('role');
 
-  // Default admin links
   let links = [
     { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
     { to: "/patients", icon: <User size={18} />, label: "Patients" },
@@ -34,47 +26,57 @@ const Sidebar = ({ authUserRole, collapsed, setCollapsed }) => {
       { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
       { to: "/appointments", icon: <Calendar size={18} />, label: "My Appointments" },
       { to: "/doctors", icon: <Stethoscope size={18} />, label: "My Doctors" },
-      {to: '/all-doctors', icon: <HeartHandshake size={18} />, label: "All doctors" }
+      { to: '/all-doctors', icon: <HeartHandshake size={18} />, label: "All Doctors" }
     ];
   }
 
   return (
     <aside
-  className={`fixed top-0 left-0 h-screen bg-white border-r p-4 z-40 transition-all duration-300 ease-in-out ${
-    collapsed ? 'w-20' : 'w-64'
-  }`}
->
+      className={`fixed top-0 left-0 h-screen bg-white border-r p-4 z-40 transition-all duration-300 ease-in-out ${
+        collapsed ? 'w-20' : 'w-64'
+      }`}
+    >
+      <div className="flex flex-col h-full">
+        {/* Header and toggle */}
+        <div className="flex justify-between items-center mb-6">
+          {!collapsed && (
+            <h2 className="text-2xl font-bold text-purple-600">MediCare</h2>
+          )}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-gray-500 hover:text-purple-600 ml-3"
+          >
+            {collapsed ? <SidebarOpen size={20} /> : <SidebarClose size={20} />}
+          </button>
+        </div>
 
-      {/* Toggle */}
-      <div className="flex justify-between items-center mb-6">
-        {!collapsed && (
-          <h2 className="text-2xl font-bold text-purple-600">MediCare</h2>
-        )}
+        {/* Navigation links */}
+        <nav className="space-y-1 flex-1">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `flex items-center px-3 py-2 rounded-lg transition ${
+                  isActive ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'
+                }`
+              }
+            >
+              <span className="mr-3">{link.icon}</span>
+              {!collapsed && <span>{link.label}</span>}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Logout button at bottom */}
         <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-gray-500 hover:text-purple-600 ml-3"
+          onClick={handleLogout}
+          className="flex items-center gap-2 bg-red-500 hover:bg-red-600 w-1/2 text-white font-medium px-4 py-2 rounded-md mt-auto transition duration-200 shadow-sm"
         >
-          {collapsed ? <SidebarOpen size={20} /> : <SidebarClose size={20} />}
+          <LogOut size={18} />
+          {!collapsed && <span>Logout</span>}
         </button>
       </div>
-
-      {/* Links */}
-      <nav className="space-y-1">
-        {links.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            className={({ isActive }) =>
-              `flex items-center px-3 py-2 rounded-lg transition ${
-                isActive ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'
-              }`
-            }
-          >
-            <span className="mr-3">{link.icon}</span>
-            {!collapsed && <span>{link.label}</span>}
-          </NavLink>
-        ))}
-      </nav>
     </aside>
   );
 };

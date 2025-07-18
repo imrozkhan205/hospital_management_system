@@ -91,10 +91,10 @@ const cancelLogout = () => {
       <Toaster position="top-right" reverseOrder={false} />
       {authUser ? (
         <div className="flex min-h-screen">
-          <Sidebar authUserRole={authUser.role} collapsed={collapsed} setCollapsed={setCollapsed} />
+          <Sidebar handleLogout={handleLogout} authUserRole={authUser.role} collapsed={collapsed} setCollapsed={setCollapsed} />
 
          <div className={`flex-1 flex flex-col transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-64'}`}>
-            <Navbar handleLogout={handleLogout} authUserRole={authUser.role} />
+            <Navbar authUserRole={authUser.role} />
             <main className="flex-grow p-6 bg-gray-50">
               <Routes>
                 {/* Dashboard route: render based on role */}

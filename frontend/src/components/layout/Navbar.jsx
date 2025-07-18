@@ -2,7 +2,7 @@
 import { LogOut, UserRound } from "lucide-react";
 
 // Receive authUserRole as a prop
-const Navbar = ({ handleLogout, authUserRole }) => {
+const Navbar = ({ authUserRole }) => {
   // Use the prop directly
   let title = "Hospital Admin Panel";
   if (authUserRole === 'doctor') title = "Doctor Panel";
@@ -14,13 +14,7 @@ const Navbar = ({ handleLogout, authUserRole }) => {
         <UserRound className="mt-1"/>
         {title}
       </h1>
-      <button
-        onClick={handleLogout}
-        className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-md transition duration-200 shadow-sm"
-      >
-        <LogOut size={18} />
-        <span>Logout</span>
-      </button>
+      
     </header>
   );
 };
