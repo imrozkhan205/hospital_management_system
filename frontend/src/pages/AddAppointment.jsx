@@ -93,12 +93,14 @@ const AddAppointment = () => {
     }));
   };
 
-  const handleTimeSlotChange = (selectedTime) => {
-    setFormData((prev) => ({
-      ...prev,
-      appointment_time: selectedTime,
-    }));
-  };
+const handleTimeSlotChange = (selectedTime) => {
+  const startTime = selectedTime.split(' - ')[0];  
+  setFormData((prev) => ({
+    ...prev,
+    appointment_time: startTime,
+  }));
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

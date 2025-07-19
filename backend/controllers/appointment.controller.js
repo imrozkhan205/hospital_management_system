@@ -100,6 +100,7 @@ export const getAppointments = async (req, res) => {
 };
 
 
+
 export const updateAppointment = async (req, res) => {
   const { id } = req.params;
   const {
