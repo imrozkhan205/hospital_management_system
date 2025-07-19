@@ -8,7 +8,8 @@ export default function NotificationsBell() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null); // create a ref
 
-  const userId = localStorage.getItem("linked_doctor_id") || localStorage.getItem("linked_patient_id");
+  const userId = localStorage.getItem("linked_doctor_id") || localStorage.getItem("linked_patient_id") || localStorage.setItem("admin_user_id", "7");
+;
 
   useEffect(() => {
     const fetchNotifications = async () => {

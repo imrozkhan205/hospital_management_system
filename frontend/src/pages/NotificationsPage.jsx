@@ -3,7 +3,8 @@ import { axiosInstance } from "../lib/axios";
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
-  const userId = localStorage.getItem("linked_doctor_id") || localStorage.getItem("linked_patient_id");
+  const userId = localStorage.getItem("linked_doctor_id") || localStorage.getItem("linked_patient_id") || localStorage.setItem("admin_user_id", "7");
+;
 
   useEffect(() => {
     const fetchNotifications = async () => {

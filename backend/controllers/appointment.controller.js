@@ -73,21 +73,32 @@ export const createAppointment = async(req, res) => {
 
     } catch (error) {
         res.status(500).json({
-            message: 'Error in creating Appointment',
+            message: 'Error in creating Appointment. Appointment already exist on this time',
             error: error.message
         });
     }
 }
 
 
-export const getAppointments = async(req, res) => {
-    try {
-        const [rows] = await pool.query('SELECT * from appointments');
-        res.json(rows);
-    } catch (error) {
-        res.status(500).json({message: 'Error in fetching appointments',error: error.message});
-    }    
-}
+// controllers/appointments.controller.js
+export const getAppointments = async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT 
+        a.*,
+        p.first_name as patient_first_name, p.last_name as patient_last_name,
+        d.first_name as doctor_first_name, d.last_name as doctor_last_name
+      FROM appointments a
+      JOIN patients p ON a.patient_id = p.patient_id
+      JOIN doctors d ON a.doctor_id = d.doctor_id
+      ORDER BY a.appointment_date DESC
+    `);
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching appointments', error: error.message });
+  }
+};
+
 
 export const updateAppointment = async (req, res) => {
   const { id } = req.params;

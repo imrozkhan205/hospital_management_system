@@ -108,6 +108,10 @@ const handleStatusChange = async (appointmentId, newStatus) => {
               <tr>
                 <th className="px-4 py-3">Patient ID</th>
                 <th className="px-4 py-3">Doctor ID</th>
+                <th className="px-4 py-3">Patient Name</th>
+<th className="px-4 py-3">Doctor Name</th>
+
+
                 {/* <th className="px-4 py-3">Patient Name</th> */}
 
                 <th className="px-4 py-3">Date</th>
@@ -125,6 +129,9 @@ const handleStatusChange = async (appointmentId, newStatus) => {
                 >
                   <td className="px-4 py-3">{appt.patient_id}</td>
                   <td className="px-4 py-3">{appt.doctor_id}</td>
+                  <td className="px-4 py-3">{appt.patient_first_name} {appt.patient_last_name}</td>
+<td className="px-4 py-3">Dr. {appt.doctor_first_name} {appt.doctor_last_name}</td>
+
                   {/* <td className="px-4 py-3">{appt.first_name}</td> */}
                   <td className="px-4 py-3">
                     {new Date(appt.appointment_date).toLocaleDateString()}
@@ -144,7 +151,7 @@ const handleStatusChange = async (appointmentId, newStatus) => {
     border border-gray-300 rounded-md
     shadow-sm
     py-2 pl-3 pr-10
-    text-sm leading-5
+    text-xs leading-5
     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
     bg-white
     transition ease-in-out duration-150
