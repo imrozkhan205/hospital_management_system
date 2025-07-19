@@ -21,6 +21,7 @@ import { axiosInstance } from './lib/axios';
 import AllDoctors from './pages/AllDoctors';
 import AppointmentAvailability from './pages/AppointmentAvailablity';
 import LogoutConfirm from './components/Logout';
+import NotificationsPage from './pages/NotificationsPage';
 
 
 function App() {
@@ -51,7 +52,7 @@ function App() {
       } else if (role === 'patient' && linkedPatientId) {
         userId = linkedPatientId;
       }
-      setAuthUser({ role, id: userId }); // Store the ID with the role
+      setAuthUser({ role, id: userId }); // Storing the ID with the role
     } else {
       setAuthUser(null);
     }
@@ -88,7 +89,7 @@ const cancelLogout = () => {
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster position="top-center" reverseOrder={false} />
       {authUser ? (
         <div className="flex min-h-screen">
           <Sidebar handleLogout={handleLogout} authUserRole={authUser.role} collapsed={collapsed} setCollapsed={setCollapsed} />
@@ -104,6 +105,7 @@ const cancelLogout = () => {
                   : authUser.role === 'patient' ? <PatientDashboard patientId={authUser.id} /> // Pass patientId
                   : <Dashboard /> // fallback: default dashboard for unknown roles
                 } />
+                <Route path="/notifications" element={<NotificationsPage />} />
 
                 {/* Admin routes */}
                 {authUser.role === 'admin' && (

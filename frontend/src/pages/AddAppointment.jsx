@@ -108,9 +108,6 @@ const generateTimeSlotsFromAvailability = (from, to) => {
       patient_id: Number(formData.patient_id),
       doctor_id: Number(formData.doctor_id),
       duration_minutes: Number(formData.duration_minutes),
-      // Ensure appointment_time is in a format your backend expects (e.g., "HH:MM")
-      // If your backend expects only the start time, you might need to adjust:
-      // appointment_time: formData.appointment_time.split(' ')[0],
     };
 
     console.log("Submitting prepared:", preparedData);

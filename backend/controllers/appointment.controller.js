@@ -2,52 +2,83 @@ import pool from "../config/db.js";
 
 export const createAppointment = async(req, res) => {
     const {
-    appointment_id  ,
-    patient_id  ,
-    doctor_id ,
-    appointment_date  ,
-    appointment_time  ,
-    duration_minutes  ,
-    appointment_type ,
-    status ,
-    reason_for_visit,
-    notes ,
+        appointment_id,
+        patient_id,
+        doctor_id,
+        appointment_date,
+        appointment_time,
+        duration_minutes,
+        appointment_type,
+        status,
+        reason_for_visit,
+        notes,
     } = req.body;
 
     try {
+        // Insert the appointment
         const [result] = await pool.query(
             `INSERT INTO appointments
-            (appointment_id  ,
-    patient_id  ,
-    doctor_id ,
-    appointment_date  ,
-    appointment_time  ,
-    duration_minutes  ,
-    appointment_type ,
-    status ,
-    reason_for_visit,
-    notes )
-    VALUES(?,?,?,?,?,?,?,?,?,?)
-            `,
-            [appointment_id  ,
-    patient_id  ,
-    doctor_id ,
-    appointment_date  ,
-    appointment_time  ,
-    duration_minutes  ,
-    appointment_type ,
-    status ,
-    reason_for_visit,
-    notes]
+            (appointment_id, patient_id, doctor_id, appointment_date, appointment_time, duration_minutes, appointment_type, status, reason_for_visit, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                appointment_id,
+                patient_id,
+                doctor_id,
+                appointment_date,
+                appointment_time,
+                duration_minutes,
+                appointment_type,
+                status,
+                reason_for_visit,
+                notes
+            ]
         );
-        res.status(201).json({message: "Appointment created successfully",
+
+        // ✅ Create notifications based on role
+        const role = req.user.role; // comes from your verifyToken middleware
+
+        if (role === 'admin') {
+            // Admin created the appointment → notify doctor & patient
+            await pool.query(
+                `INSERT INTO notifications (user_id, message) VALUES (?, ?), (?, ?)`,
+                [
+                    doctor_id, `A new appointment has been scheduled for you on ${appointment_date}`,
+                    patient_id, `Your appointment has been scheduled on ${appointment_date}`
+                ]
+            );
+        } else if (role === 'doctor') {
+            // Doctor created → notify patient & admin
+            await pool.query(
+                `INSERT INTO notifications (user_id, message) VALUES (?, ?), (?, ?)`,
+                [
+                    patient_id, `A new appointment has been created by your doctor on ${appointment_date}`,
+                    1, `Doctor ID ${doctor_id} created a new appointment`  // assuming admin user_id = 1
+                ]
+            );
+        } else if (role === 'patient') {
+            // Patient created → notify doctor & admin
+            await pool.query(
+                `INSERT INTO notifications (user_id, message) VALUES (?, ?), (?, ?)`,
+                [
+                    doctor_id, `A new appointment has been requested by patient ID ${patient_id} on ${appointment_date}`,
+                    1, `Patient ID ${patient_id} created a new appointment`
+                ]
+            );
+        }
+
+        res.status(201).json({
+            message: "Appointment created successfully",
             appointment_id: result.insertId
-        })
+        });
 
     } catch (error) {
-        res.status(500).json({message: 'Error in creating Appointment', error: error.message});
+        res.status(500).json({
+            message: 'Error in creating Appointment',
+            error: error.message
+        });
     }
 }
+
 
 export const getAppointments = async(req, res) => {
     try {

@@ -9,6 +9,7 @@ import departmentroutes from '../routes/department.route.js'
 import dashboardRoutes from '../routes/dashboard.route.js'
 import medicalRecordsRoutes from '../routes/medicalRecord.route.js'
 import userRoutes from '../routes/user.route.js'
+import notificationRoutes from '../routes/notifications.route.js'
 
 dotenv.config();
 const app = express()
@@ -23,7 +24,7 @@ app.use('/api/departments', departmentroutes)
 app.use('/dashboard', dashboardRoutes)
 app.use('/api/medical-records', medicalRecordsRoutes)
 app.use('/api/users', userRoutes)
-
+app.use('/api/notifications', notificationRoutes)
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);

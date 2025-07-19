@@ -1,37 +1,31 @@
 // src/pages/Doctors.jsx
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../lib/axios";
-import { Trash2, UserPlus, Stethoscope, Users } from "lucide-react"; // Added Users for patient's "My Doctors" icon
+import { Trash2, UserPlus, Stethoscope, Users } from "lucide-react"; 
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
-// Receive authUser as a prop from App.js
 const Doctors = ({ authUser }) => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchDoctors = async () => {
-    setLoading(true); // Always set loading to true before starting a fetch operation
+    setLoading(true);
     try {
       let res;
       if (authUser?.role === 'admin') {
         // Admin: Fetch all doctors
         res = await axiosInstance.get("/doctors");
       } else if (authUser?.role === 'patient') {
-        // Patient: Fetch doctors associated with their appointments
-        // This assumes you have a backend endpoint like /patients/:patientId/doctors
-        // which your provided patientController.js `getPatientDoctors` handles.
-        if (authUser.id) { // Ensure patient ID exists before making the API call
+        if (authUser.id) { 
           res = await axiosInstance.get(`/patients/${authUser.id}/doctors`);
         } else {
-          // If patient ID is not available (e.g., initial render before authUser.id is set)
           setDoctors([]); // Set doctors to empty
           setLoading(false); // Stop loading
           console.warn("Doctors component: Patient ID not found for fetching associated doctors.");
           return; // Exit the function
         }
       } else {
-        // Handle other roles or scenarios where authUser is not as expected
         setDoctors([]); // No doctors to display
         setLoading(false); // Stop loading
         toast.error("Unauthorized access or invalid user role for doctor list.");

@@ -1,5 +1,6 @@
 // src/components/layout/Navbar.js
 import { LogOut, UserRound } from "lucide-react";
+import NotificationsBell from "../NotificationsBell";
 
 // Receive authUserRole as a prop
 const Navbar = ({ authUserRole }) => {
@@ -14,6 +15,7 @@ const Navbar = ({ authUserRole }) => {
         <UserRound className="mt-1"/>
         {title}
       </h1>
+      <NotificationsBell />
       
     </header>
   );
