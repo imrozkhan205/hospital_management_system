@@ -79,7 +79,6 @@ export const createAppointment = async(req, res) => {
     }
 }
 
-
 // controllers/appointments.controller.js
 export const getAppointments = async (req, res) => {
   try {
@@ -98,8 +97,6 @@ export const getAppointments = async (req, res) => {
     res.status(500).json({ message: 'Error fetching appointments', error: error.message });
   }
 };
-
-
 
 export const updateAppointment = async (req, res) => {
   const { id } = req.params;
@@ -165,17 +162,40 @@ export const deleteAppointment = async (req, res) => {
   }
 };
 
+// controllers/appointment.controller.js
 export const getAppointmentsByDoctorId = async (req, res) => {
   const doctor_id = req.params.doctor_id;
-
   try {
-    const [rows] = await pool.query(
-      "SELECT * FROM appointments WHERE doctor_id = ? ORDER BY appointment_date DESC, appointment_time DESC",
-      [doctor_id]
-    );
+    const [rows] = await pool.query(`
+      SELECT a.*, 
+             p.first_name AS patient_first_name, 
+             p.last_name AS patient_last_name
+      FROM appointments a
+      JOIN patients p ON a.patient_id = p.patient_id
+      WHERE a.doctor_id = ?
+      ORDER BY a.appointment_date DESC
+    `, [doctor_id]);
     res.json(rows);
   } catch (err) {
-    console.error(err);
+    res.status(500).json({ message: "Error fetching appointments", error: err.message });
+  }
+};
+
+
+// For patient panel
+export const getAppointmentsByPatientId = async (req, res) =>{
+  const patient_id = req.params.patient_id;
+  try {
+    const [rows] = await pool.query(`
+      SELECT a.*, 
+        d.first_name AS doctor_first_name, d.last_name AS doctor_last_name
+      FROM appointments a
+      JOIN doctors d ON a.doctor_id = d.doctor_id
+      WHERE a.patient_id = ?
+      ORDER BY a.appointment_date DESC
+    `, [patient_id]);
+    res.json(rows);
+  } catch (err) {
     res.status(500).json({ message: "Error fetching appointments", error: err.message });
   }
 };

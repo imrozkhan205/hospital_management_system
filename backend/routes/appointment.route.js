@@ -6,6 +6,8 @@ import {
   deleteAppointment,
   getAppointments,
   getAppointmentsByDoctorAndDate,
+  getAppointmentsByDoctorId,
+  getAppointmentsByPatientId,
   getAvailableSlots,
   updateAppointment
 } from '../controllers/appointment.controller.js';
@@ -35,5 +37,9 @@ router.get('/slots', getAvailableSlots);
 
 // Get appointments by doctor and date
 router.get('/doctor/:doctorId', getAppointmentsByDoctorAndDate);
+
+router.get('/doctors/:doctor_id/appointments', getAppointmentsByDoctorId); // doctor panel
+router.get('/patients/:patient_id/appointments', getAppointmentsByPatientId); 
+
 
 export default router;

@@ -8,53 +8,43 @@ const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const role = localStorage.getItem("role");
-  const doctorId = localStorage.getItem("doctorId");
-  const patientId = localStorage.getItem("patientId");
-  
 
-const handleStatusChange = async (appointmentId, newStatus) => {
-  newStatus = newStatus.toLowerCase(); // ensure always lowercase
-  const originalStatus = appointments.find(a => a.appointment_id === appointmentId)?.status;
+  const handleStatusChange = async (appointmentId, newStatus) => {
+    newStatus = newStatus.toLowerCase();
+    const originalStatus = appointments.find(a => a.appointment_id === appointmentId)?.status;
 
-  setAppointments((prev) =>
-    prev.map((a) =>
-      a.appointment_id === appointmentId ? { ...a, status: newStatus } : a
-    )
-  );
-
-  try {
-    await axiosInstance.put(`/appointments/${appointmentId}/status`, {
-      status: newStatus
-    });
-    toast.success("Status updated");
-  } catch (error) {
-    setAppointments((prev) =>
-      prev.map((a) =>
-        a.appointment_id === appointmentId ? { ...a, status: originalStatus } : a
+    setAppointments(prev =>
+      prev.map(a =>
+        a.appointment_id === appointmentId ? { ...a, status: newStatus } : a
       )
     );
-    console.error("Failed to update status:", error);
-    toast.error("Failed to update status");
-  }
-};
 
-
+    try {
+      await axiosInstance.put(`/appointments/${appointmentId}/status`, { status: newStatus });
+      toast.success("Status updated");
+    } catch (error) {
+      setAppointments(prev =>
+        prev.map(a =>
+          a.appointment_id === appointmentId ? { ...a, status: originalStatus } : a
+        )
+      );
+      toast.error("Failed to update status");
+    }
+  };
 
   const fetchAppointments = async () => {
     try {
-      const role = localStorage.getItem("role");
       let res;
-
       if (role === "doctor") {
         const doctorId = localStorage.getItem("linked_doctor_id");
-        res = await axiosInstance.get(`/doctors/${doctorId}/appointments`);
+        res = await axiosInstance.get(`/appointments/doctors/${doctorId}/appointments`);
+
       } else if (role === "patient") {
         const patientId = localStorage.getItem("linked_patient_id");
-        res = await axiosInstance.get(`/patients/${patientId}/appointments`);
+        res = await axiosInstance.get(`/appointments/patients/${patientId}/appointments`);
       } else {
-        res = await axiosInstance.get("/appointments"); // admin gets all
+        res = await axiosInstance.get("/appointments"); // admin
       }
-
       setAppointments(res.data);
     } catch (error) {
       toast.error("Failed to fetch appointments");
@@ -64,14 +54,11 @@ const handleStatusChange = async (appointmentId, newStatus) => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this appointment?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this appointment?")) return;
     try {
       await axiosInstance.delete(`/appointments/${id}`);
       toast.success("Appointment deleted");
-      setAppointments((prev) =>
-        prev.filter((appt) => appt.appointment_id !== id)
-      );
+      setAppointments(prev => prev.filter(appt => appt.appointment_id !== id));
     } catch (error) {
       toast.error("Failed to delete appointment");
     }
@@ -108,12 +95,12 @@ const handleStatusChange = async (appointmentId, newStatus) => {
               <tr>
                 <th className="px-4 py-3">Patient ID</th>
                 <th className="px-4 py-3">Doctor ID</th>
-                <th className="px-4 py-3">Patient Name</th>
-<th className="px-4 py-3">Doctor Name</th>
-
-
-                {/* <th className="px-4 py-3">Patient Name</th> */}
-
+                {(role === "admin" || role === "doctor") && (
+                  <th className="px-4 py-3">Patient Name</th>
+                )}
+                {(role === "admin" || role === "patient") && (
+                  <th className="px-4 py-3">Doctor Name</th>
+                )}
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Time</th>
                 <th className="px-4 py-3">Type</th>
@@ -123,50 +110,36 @@ const handleStatusChange = async (appointmentId, newStatus) => {
             </thead>
             <tbody>
               {appointments.map((appt) => (
-                <tr
-                  key={appt.appointment_id}
-                  className="border-b hover:bg-gray-50"
-                >
+                <tr key={appt.appointment_id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3">{appt.patient_id}</td>
                   <td className="px-4 py-3">{appt.doctor_id}</td>
-                  <td className="px-4 py-3">{appt.patient_first_name} {appt.patient_last_name}</td>
-<td className="px-4 py-3">Dr. {appt.doctor_first_name} {appt.doctor_last_name}</td>
+                  {(role === "admin" || role === "doctor") && (
+                    <td className="px-4 py-3">{appt.patient_first_name} {appt.patient_last_name}</td>
 
-                  {/* <td className="px-4 py-3">{appt.first_name}</td> */}
-                  <td className="px-4 py-3">
-                    {new Date(appt.appointment_date).toLocaleDateString()}
-                  </td>
+                  )}
+                  {(role === "admin" || role === "patient") && (
+                    <td className="px-4 py-3">
+                      Dr. {appt.doctor_first_name} {appt.doctor_last_name}
+                    </td>
+                  )}
+                  <td className="px-4 py-3">{new Date(appt.appointment_date).toLocaleDateString()}</td>
                   <td className="px-4 py-3">{appt.appointment_time}</td>
-                  <td className="px-4 py-3 capitalize">
-                    {appt.appointment_type}
+                  <td className="px-4 py-3 capitalize">{appt.appointment_type}</td>
+                  <td className="px-4 py-3">
+                    {(role === "doctor" || role === "admin") ? (
+                      <select
+                        value={appt.status}
+                        onChange={(e) => handleStatusChange(appt.appointment_id, e.target.value)}
+                        className="block w-full border border-gray-300 rounded-md shadow-sm py-1 pl-2 pr-8 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="scheduled">Scheduled</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    ) : (
+                      <span className="capitalize">{appt.status}</span>
+                    )}
                   </td>
-                 <td className="px-4 py-3">
-  {role === "doctor" || role === "admin" ? (
-<select
-  value={appt.status} // now use actual lowercase value from DB
-  onChange={(e) =>
-    handleStatusChange(appt.appointment_id, e.target.value)
-  }
-  className="block w-full
-    border border-gray-300 rounded-md
-    shadow-sm
-    py-2 pl-3 pr-10
-    text-xs leading-5
-    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-    bg-white
-    transition ease-in-out duration-150
-    appearance-none
-  "
->
-  <option value="scheduled">Scheduled</option>
-  <option value="completed">Completed</option>
-  <option value="cancelled">Cancelled</option>
-</select>
-
-  ) : (
-    <span className="capitalize">{appt.status}</span>
-  )}
-</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => handleDelete(appt.appointment_id)}
