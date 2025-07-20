@@ -3,10 +3,13 @@ import { axiosInstance } from "../lib/axios.js";
 import { Calendar, Plus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import {Listbox} from "@headlessui/react"
+import { Check, ChevronDown} from 'lucide-react'
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all'); // ✅ new filter state
   const role = localStorage.getItem("role");
 
   const handleStatusChange = async (appointmentId, newStatus) => {
@@ -38,7 +41,6 @@ const Appointments = () => {
       if (role === "doctor") {
         const doctorId = localStorage.getItem("linked_doctor_id");
         res = await axiosInstance.get(`/appointments/doctors/${doctorId}/appointments`);
-
       } else if (role === "patient") {
         const patientId = localStorage.getItem("linked_patient_id");
         res = await axiosInstance.get(`/appointments/patients/${patientId}/appointments`);
@@ -69,12 +71,16 @@ const Appointments = () => {
   }, []);
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Calendar className="text-purple-600" />
-          Appointments
-        </h1>
+    <div className="p-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <Calendar className="text-purple-600" />
+            Appointments
+          </h1>
+          {/* ✅ Status filter dropdown */}
+          
+        </div>
         <Link
           to={role === "admin" || role === "doctor" ? "/appointments/add" : "/all-doctors"}
           className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow"
@@ -83,6 +89,35 @@ const Appointments = () => {
           Add Appointment
         </Link>
       </div>
+<Listbox value={statusFilter} onChange={setStatusFilter}>
+  <div className="relative pb-3">
+    <Listbox.Button className="flex justify-between items-center border border-gray-300 rounded-md shadow-sm py-1 pl-2 pr-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 w-36">
+      <span className="capitalize">{statusFilter}</span>
+      <ChevronDown className="w-4 h-4 text-gray-500" />
+    </Listbox.Button>
+    <Listbox.Options className="absolute mt-1 w-36 bg-white shadow-lg rounded-md z-10 text-xs border border-gray-200">
+      {['all', 'scheduled', 'completed', 'cancelled'].map((status) => (
+        <Listbox.Option
+          key={status}
+          value={status}
+          className={({ active }) =>
+            `cursor-pointer select-none px-3 py-1 ${
+              active ? 'bg-indigo-100 text-indigo-900' : 'text-gray-700'
+            }`
+          }
+        >
+          {({ selected }) => (
+            <div className="flex justify-between items-center">
+              <span className="capitalize">{status}</span>
+              {selected && <Check className="w-4 h-4 text-indigo-600" />}
+            </div>
+          )}
+        </Listbox.Option>
+      ))}
+    </Listbox.Options>
+  </div>
+</Listbox>
+
 
       {loading ? (
         <p className="text-center text-gray-500">Loading appointments...</p>
@@ -105,17 +140,18 @@ const Appointments = () => {
                 <th className="px-4 py-3">Time</th>
                 <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                {role === "admin" || role === "doctor"&& (<th className="px-4 py-3 text-right">Actions</th>)}
               </tr>
             </thead>
             <tbody>
-              {appointments.map((appt) => (
+              {appointments
+                .filter((appt) => statusFilter === 'all' || appt.status === statusFilter)
+                .map((appt) => (
                 <tr key={appt.appointment_id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3">{appt.patient_id}</td>
                   <td className="px-4 py-3">{appt.doctor_id}</td>
                   {(role === "admin" || role === "doctor") && (
                     <td className="px-4 py-3">{appt.patient_first_name} {appt.patient_last_name}</td>
-
                   )}
                   {(role === "admin" || role === "patient") && (
                     <td className="px-4 py-3">
@@ -140,14 +176,14 @@ const Appointments = () => {
                       <span className="capitalize">{appt.status}</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  {role === "admin" || role ==="doctor" && (<td className="px-4 py-3 text-right">
                     <button
                       onClick={() => handleDelete(appt.appointment_id)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <Trash2 size={18} />
                     </button>
-                  </td>
+                  </td>)}
                 </tr>
               ))}
             </tbody>

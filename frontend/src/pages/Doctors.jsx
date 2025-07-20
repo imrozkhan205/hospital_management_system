@@ -45,7 +45,7 @@ const Doctors = ({ authUser }) => {
   const handleDelete = async (id) => {
     // Confirmation dialog before deletion
     if (!window.confirm("Are you sure you want to delete this doctor? This action cannot be undone.")) {
-      return; // Stop if user cancels
+      return; 
     }
 
     try {
@@ -74,6 +74,7 @@ const Doctors = ({ authUser }) => {
   // Helper flags for conditional rendering based on role
   const isPatient = authUser?.role === 'patient';
   const isAdmin = authUser?.role === 'admin';
+  const isDoctor = authUser?.role === 'doctor';
 
   return (
     <div className="p-6">
@@ -90,7 +91,7 @@ const Doctors = ({ authUser }) => {
           {isPatient ? "My Doctors" : "Doctors"}
         </h1>
         {/* "Add doctor" button visible only to admins */}
-        {isAdmin && (
+        {isAdmin || isDoctor && (
           <Link to='/doctors/add' className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow">
             <UserPlus className="mr-2" size={18} />
             Add doctor

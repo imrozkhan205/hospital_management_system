@@ -1,39 +1,68 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 import {
-  Home, User, Stethoscope, Calendar, Folder, FileText,
-  SidebarClose, SidebarOpen, HeartHandshake, LogOut
-} from 'lucide-react';
+  Home,
+  User,
+  Stethoscope,
+  Calendar,
+  Folder,
+  FileText,
+  SidebarClose,
+  SidebarOpen,
+  HeartHandshake,
+  LogOut,
+  LogOutIcon,
+} from "lucide-react";
 const Sidebar = ({ authUserRole, collapsed, setCollapsed, handleLogout }) => {
-  const role = localStorage.getItem('role');
+  const role = localStorage.getItem("role");
 
   let links = [
     { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
     { to: "/patients", icon: <User size={18} />, label: "Patients" },
     { to: "/doctors", icon: <Stethoscope size={18} />, label: "Doctors" },
-    { to: "/appointments", icon: <Calendar size={18} />, label: "Appointments" },
+    {
+      to: "/appointments",
+      icon: <Calendar size={18} />,
+      label: "Appointments",
+    },
     { to: "/departments", icon: <Folder size={18} />, label: "Departments" },
-    { to: "/medical-records", icon: <FileText size={18} />, label: "Medical Records" },
+    {
+      to: "/medical-records",
+      icon: <FileText size={18} />,
+      label: "Medical Records",
+    },
   ];
 
-  if (role === 'doctor') {
+  if (role === "doctor") {
     links = [
       { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
-      { to: "/appointments", icon: <Calendar size={18} />, label: "My Appointments" },
+      {
+        to: "/appointments",
+        icon: <Calendar size={18} />,
+        label: "My Appointments",
+      },
       { to: "/patients", icon: <User size={18} />, label: "My Patients" },
     ];
-  } else if (role === 'patient') {
+  } else if (role === "patient") {
     links = [
       { to: "/dashboard", icon: <Home size={18} />, label: "Dashboard" },
-      { to: "/appointments", icon: <Calendar size={18} />, label: "My Appointments" },
+      {
+        to: "/appointments",
+        icon: <Calendar size={18} />,
+        label: "My Appointments",
+      },
       { to: "/doctors", icon: <Stethoscope size={18} />, label: "My Doctors" },
-      { to: '/all-doctors', icon: <HeartHandshake size={18} />, label: "All Doctors" }
+      {
+        to: "/all-doctors",
+        icon: <HeartHandshake size={18} />,
+        label: "All Doctors",
+      },
     ];
   }
 
   return (
     <aside
       className={`fixed top-0 left-0 h-screen bg-white border-r p-4 z-40 transition-all duration-300 ease-in-out ${
-        collapsed ? 'w-20' : 'w-64'
+        collapsed ? "w-20" : "w-64"
       }`}
     >
       <div className="flex flex-col h-full">
@@ -58,7 +87,9 @@ const Sidebar = ({ authUserRole, collapsed, setCollapsed, handleLogout }) => {
               to={link.to}
               className={({ isActive }) =>
                 `flex items-center px-3 py-2 rounded-lg transition ${
-                  isActive ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'
+                  isActive
+                    ? "bg-indigo-100 text-indigo-700"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`
               }
             >
@@ -68,12 +99,16 @@ const Sidebar = ({ authUserRole, collapsed, setCollapsed, handleLogout }) => {
           ))}
         </nav>
 
-        {/* Logout button at bottom */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 bg-red-500 hover:bg-red-600 w-1/2 text-white font-medium px-4 py-2 rounded-md mt-auto transition duration-200 shadow-sm"
+          className={`
+    flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-md mt-auto transition duration-200 shadow-sm
+    ${
+      collapsed ? "w-auto justify-center" : "w-1/2"
+    }
+  `}
         >
-          <LogOut size={18} />
+          <LogOutIcon size={18} />
           {!collapsed && <span>Logout</span>}
         </button>
       </div>
