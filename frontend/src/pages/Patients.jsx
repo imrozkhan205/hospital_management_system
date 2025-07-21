@@ -61,7 +61,7 @@ const Patients = () => {
     }
   };
 
-  console.log('attachmentsMap', attachmentsMap);
+  // console.log('attachmentsMap', attachmentsMap);
 
   // Upload attachment
   const handleUploadAttachment = async (patientId, file) => {
