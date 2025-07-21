@@ -3,8 +3,6 @@ import { axiosInstance } from "../lib/axios";
 import { Stethoscope, ChevronDown, Check } from "lucide-react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { Link } from "react-router-dom";
-import { Navigate } from "react-router-dom";
-import AppointmentAvailability from "./AppointmentAvailablity";
 const AllDoctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);

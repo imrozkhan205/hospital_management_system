@@ -1,5 +1,7 @@
 import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
+import streamifier from 'streamifier';
+import {cloudinary} from "../config/cloudinary.js";
 
 // Create patient with user login
 export const createPatient = async (req, res) => {
@@ -183,8 +185,6 @@ export const getPatientDoctors = async (req, res) => {
 };
 
 
-// patient.controller.js
-
 export const getPatientStats = async (req, res) => {
   const { patientId } = req.params;
   try {
@@ -229,5 +229,135 @@ export const getPatientStats = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch patient stats", error: err.message });
+  }
+};
+
+export const addPatientAttachment = async (req, res) => {
+  const patientId = req.params.id;
+  const file = req.file;
+
+  if (!file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
+  try {
+    // Upload to Cloudinary as raw, keep original filename & extension
+    const result = await new Promise((resolve, reject) => {
+  const uploadStream = cloudinary.uploader.upload_stream(
+    {
+      folder: 'hospital/attachments',
+      resource_type: 'raw',
+      use_filename: true,
+      unique_filename: false,
+      format: 'pdf' // try to force pdf
+    },
+    (error, result) => {
+      if (result) resolve(result);
+      else reject(error);
+    }
+  );
+  streamifier.createReadStream(file.buffer).pipe(uploadStream);
+});
+
+// Save metadata
+const [rows] = await pool.query(
+  'INSERT INTO patient_attachments (patient_id, file_path, public_id, file_name, uploaded_at) VALUES (?, ?, ?, ?, NOW())',
+  [patientId, result.secure_url, result.public_id, file.originalname]
+);
+
+
+    res.json({
+      message: 'Attachment uploaded successfully',
+      attachment_id: rows.insertId,
+      file_url: result.secure_url, // this now ends with .pdf if original filename had it
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+export const getPatientAttachments = async (req, res) => {
+  const patientId = req.params.id;
+
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM patient_attachments WHERE patient_id = ? ORDER BY uploaded_at DESC',
+      [patientId]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching attachments:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Serve the attachment file to client
+export const getFile = async (req, res) => {
+  const attachmentId = req.params.attachmentId;
+  try {
+    const [rows] = await pool.query(
+      'SELECT file_path FROM patient_attachments WHERE attachment_id = ?',
+      [attachmentId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    // This just sends a JSON object with the URL
+    res.json({ url: rows[0].file_path });
+  } catch (error) {
+    console.error('Error fetching file:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const deletePatientAttachmentByPatient = async (req, res) => {
+  const { id: patientId, attachmentId } = req.params;
+
+  try {
+    // Get the attachment details including public_id for Cloudinary deletion
+    const [rows] = await pool.query(
+      'SELECT public_id FROM patient_attachments WHERE attachment_id = ? AND patient_id = ?',
+      [attachmentId, patientId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: 'Attachment not found for this patient' });
+    }
+
+    const { public_id } = rows[0];
+
+    // Delete from Cloudinary
+    try {
+      await cloudinary.uploader.destroy(public_id);
+      console.log(`File deleted from Cloudinary: ${public_id}`);
+    } catch (cloudinaryError) {
+      console.error('Cloudinary deletion error:', cloudinaryError);
+      // Continue with database deletion even if Cloudinary deletion fails
+    }
+
+    // Delete from database
+    const [deleteResult] = await pool.query(
+      'DELETE FROM patient_attachments WHERE attachment_id = ? AND patient_id = ?',
+      [attachmentId, patientId]
+    );
+
+    if (deleteResult.affectedRows === 0) {
+      return res.status(404).json({ message: 'Attachment not found for this patient' });
+    }
+
+    res.json({ 
+      message: 'Attachment deleted successfully',
+      attachment_id: attachmentId,
+      patient_id: patientId
+    });
+
+  } catch (error) {
+    console.error('Delete attachment error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

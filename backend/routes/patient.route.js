@@ -1,6 +1,7 @@
 import express from 'express';
-import { createPatient, createPatientWithUser, deletePatient, getAppointmentsByPatient, getPatientById, getPatientDoctors, getPatients, getPatientStats, updatePatient } from '../controllers/patient.controller.js';
+import { addPatientAttachment, createPatient, createPatientWithUser, deletePatient, deletePatientAttachmentByPatient, getAppointmentsByPatient, getFile, getPatientAttachments, getPatientById, getPatientDoctors, getPatients, getPatientStats, updatePatient } from '../controllers/patient.controller.js';
 import { verifyToken } from '../middleware/auth.middleware.js';
+import { upload } from '../middleware/upload.js';
 
 
 const router = express.Router();
@@ -15,5 +16,10 @@ router.post('/create-with-user', createPatientWithUser)
 router.get('/:patientId/appointments', getAppointmentsByPatient);
 router.get('/:patientId/doctors', getPatientDoctors)
 router.get('/:patientId/stats', getPatientStats)
+router.post('/:id/attachment', upload.single('file'), addPatientAttachment);
+router.get('/:id/attachments', getPatientAttachments);
+router.get('/attachment/:attachmentId', getFile);
+router.delete('/:id/attachments/:attachmentId', deletePatientAttachmentByPatient);
+
 
 export default router;
