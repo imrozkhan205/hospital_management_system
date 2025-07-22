@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
-import streamifier from 'streamifier';
-import {cloudinary} from "../config/cloudinary.js";
+import streamifier from "streamifier";
+import { cloudinary } from "../config/cloudinary.js";
 
 // Create patient with user login
 export const createPatient = async (req, res) => {
@@ -14,19 +14,27 @@ export const createPatient = async (req, res) => {
     email,
     insurance_provider,
     username,
-    password
+    password,
   } = req.body;
 
   try {
     // 1. Add patient
     const [patientResult] = await pool.query(
       "INSERT INTO patients (first_name, last_name, date_of_birth, gender, phone, email, insurance_provider) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [first_name, last_name, date_of_birth, gender, phone, email, insurance_provider]
+      [
+        first_name,
+        last_name,
+        date_of_birth,
+        gender,
+        phone,
+        email,
+        insurance_provider,
+      ]
     );
     const patient_id = patientResult.insertId;
 
     // 2. Hash password
-    const hashedPassword = await bcrypt.hash(password || 'patient123', 10);
+    const hashedPassword = await bcrypt.hash(password || "patient123", 10);
 
     // 3. Add user
     await pool.query(
@@ -37,7 +45,9 @@ export const createPatient = async (req, res) => {
     res.status(201).json({ message: "Patient created with login" });
   } catch (error) {
     console.error("Error creating patient:", error);
-    res.status(500).json({ message: "Error creating patient", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error creating patient", error: error.message });
   }
 };
 
@@ -59,7 +69,9 @@ export const getPatients = async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error("Error fetching patients:", err);
-    res.status(500).json({ message: 'Error fetching patients', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching patients", error: err.message });
   }
 };
 
@@ -67,14 +79,19 @@ export const getPatients = async (req, res) => {
 export const deletePatient = async (req, res) => {
   const { id } = req.params;
   try {
-    const [result] = await pool.query('DELETE FROM patients WHERE patient_id = ?', [id]);
+    const [result] = await pool.query(
+      "DELETE FROM patients WHERE patient_id = ?",
+      [id]
+    );
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Patient not found' });
+      return res.status(404).json({ message: "Patient not found" });
     }
-    res.json({ message: 'Patient deleted successfully' });
+    res.json({ message: "Patient deleted successfully" });
   } catch (err) {
     console.error("Error deleting patient:", err);
-    res.status(500).json({ message: 'Error deleting patient', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error deleting patient", error: err.message });
   }
 };
 
@@ -82,8 +99,14 @@ export const deletePatient = async (req, res) => {
 export const updatePatient = async (req, res) => {
   const { id } = req.params;
   const {
-    phone, email, address, emergency_contact_name, emergency_contact_phone,
-    insurance_provider, insurance_policy_number, allergies
+    phone,
+    email,
+    address,
+    emergency_contact_name,
+    emergency_contact_phone,
+    insurance_provider,
+    insurance_policy_number,
+    allergies,
   } = req.body;
 
   try {
@@ -99,17 +122,26 @@ export const updatePatient = async (req, res) => {
         allergies = ?
       WHERE patient_id = ?`,
       [
-        phone, email, address, emergency_contact_name, emergency_contact_phone,
-        insurance_provider, insurance_policy_number, allergies, id
+        phone,
+        email,
+        address,
+        emergency_contact_name,
+        emergency_contact_phone,
+        insurance_provider,
+        insurance_policy_number,
+        allergies,
+        id,
       ]
     );
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Patient not found' });
+      return res.status(404).json({ message: "Patient not found" });
     }
-    res.json({ message: 'Patient updated successfully' });
+    res.json({ message: "Patient updated successfully" });
   } catch (error) {
     console.error("Error updating patient:", error);
-    res.status(500).json({ message: "Error updating patient", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating patient", error: error.message });
   }
 };
 
@@ -117,27 +149,48 @@ export const updatePatient = async (req, res) => {
 export const getPatientById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await pool.query("SELECT * FROM patients WHERE patient_id = ?", [id]);
-    if (rows.length === 0) return res.status(404).json({ message: "Patient not found" });
+    const [rows] = await pool.query(
+      "SELECT * FROM patients WHERE patient_id = ?",
+      [id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ message: "Patient not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error("Error fetching patient:", err);
-    res.status(500).json({ message: "Error fetching patient", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching patient", error: err.message });
   }
 };
 
 // Create patient + user together
 export const createPatientWithUser = async (req, res) => {
   const {
-    username, password, first_name, last_name,
-    date_of_birth, gender, phone, email, insurance_provider
+    username,
+    password,
+    first_name,
+    last_name,
+    date_of_birth,
+    gender,
+    phone,
+    email,
+    insurance_provider,
   } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [patientResult] = await pool.query(
       "INSERT INTO patients (first_name, last_name, date_of_birth, gender, phone, email, insurance_provider) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [first_name, last_name, date_of_birth, gender, phone, email, insurance_provider]
+      [
+        first_name,
+        last_name,
+        date_of_birth,
+        gender,
+        phone,
+        email,
+        insurance_provider,
+      ]
     );
     const newPatientId = patientResult.insertId;
 
@@ -146,10 +199,20 @@ export const createPatientWithUser = async (req, res) => {
       [username, hashedPassword, newPatientId]
     );
 
-    res.status(201).json({ message: "Patient(user) created successfully", patient_id: newPatientId });
+    res
+      .status(201)
+      .json({
+        message: "Patient(user) created successfully",
+        patient_id: newPatientId,
+      });
   } catch (error) {
     console.error("Error creating patient(user):", error);
-    res.status(500).json({ message: "Failed to create patient(user)", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Failed to create patient(user)",
+        error: error.message,
+      });
   }
 };
 
@@ -164,26 +227,32 @@ export const getAppointmentsByPatient = async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error("Error fetching appointments by patient:", err);
-    res.status(500).json({ message: "Failed to fetch appointments", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch appointments", error: err.message });
   }
 };
 
 export const getPatientDoctors = async (req, res) => {
   const { patientId } = req.params;
   try {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.query(
+      `
       SELECT DISTINCT d.*
       FROM doctors d
       JOIN appointments a ON d.doctor_id = a.doctor_id
       WHERE a.patient_id = ?
-    `, [patientId]);
+    `,
+      [patientId]
+    );
     res.json(rows);
   } catch (error) {
     console.error("Error fetching doctors:", error);
-    res.status(500).json({ message: "Error fetching doctors", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching doctors", error: error.message });
   }
 };
-
 
 export const getPatientStats = async (req, res) => {
   const { patientId } = req.params;
@@ -193,7 +262,8 @@ export const getPatientStats = async (req, res) => {
       `SELECT status, COUNT(*) as count 
        FROM appointments 
        WHERE patient_id = ? 
-       GROUP BY status`, [patientId]
+       GROUP BY status`,
+      [patientId]
     );
 
     // Appointments by type
@@ -201,168 +271,217 @@ export const getPatientStats = async (req, res) => {
       `SELECT appointment_type, COUNT(*) as count 
        FROM appointments 
        WHERE patient_id = ? 
-       GROUP BY appointment_type`, [patientId]
+       GROUP BY appointment_type`,
+      [patientId]
     );
 
     // Appointments over last months (e.g., last 6 months)
-    const [monthlyStats] = await pool.query(`
+    const [monthlyStats] = await pool.query(
+      `
       SELECT DATE_FORMAT(appointment_date, '%Y-%m') as month, COUNT(*) as count
       FROM appointments 
       WHERE patient_id = ?
       GROUP BY month
       ORDER BY month
-    `, [patientId]);
+    `,
+      [patientId]
+    );
 
     // Number of unique doctors seen
-    const [doctorsSeen] = await pool.query(`
+    const [doctorsSeen] = await pool.query(
+      `
       SELECT COUNT(DISTINCT doctor_id) as total_doctors
       FROM appointments 
       WHERE patient_id = ?
-    `, [patientId]);
+    `,
+      [patientId]
+    );
 
     res.json({
       apptStats,
       typeStats,
       monthlyStats,
-      totalDoctors: doctorsSeen[0].total_doctors
+      totalDoctors: doctorsSeen[0].total_doctors,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to fetch patient stats", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch patient stats", error: err.message });
   }
 };
 
 export const addPatientAttachment = async (req, res) => {
-    const patientId = req.params.id;
-    const file = req.file;
+  const patientId = req.params.id;
+  const file = req.file;
 
-    if (!file) {
-        return res.status(400).json({ message: 'No file uploaded' });
-    }
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
 
-    try {
-        // Upload to Cloudinary as raw, keep original filename & extension
-        const result = await new Promise((resolve, reject) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-                {
-                    folder: 'hospital/attachments',
-                    resource_type: 'raw',
-                    use_filename: true,
-                    unique_filename: false,
-                    format: 'pdf' // try to force pdf
-                },
-                (error, result) => {
-                    if (result) resolve(result);
-                    else reject(error);
-                }
-            );
-            streamifier.createReadStream(file.buffer).pipe(uploadStream);
-        });
+  try {
+    // Upload to Cloudinary as raw, keep original filename & extension
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: "hospital/attachments",
+          resource_type: "raw",
+          use_filename: true,
+          unique_filename: false,
+          format: "pdf", // try to force pdf
+        },
+        (error, result) => {
+          if (result) resolve(result);
+          else reject(error);
+        }
+      );
+      streamifier.createReadStream(file.buffer).pipe(uploadStream);
+    });
 
-        // Save metadata
-        const [rows] = await pool.query(
-            'INSERT INTO patient_attachments (patient_id, file_path, public_id, file_name, uploaded_at) VALUES (?, ?, ?, ?, NOW())',
-            [patientId, result.secure_url, result.public_id, file.originalname]
-        );
+    // Save metadata
+    const [rows] = await pool.query(
+      "INSERT INTO patient_attachments (patient_id, file_path, public_id, file_name, uploaded_at) VALUES (?, ?, ?, ?, NOW())",
+      [patientId, result.secure_url, result.public_id, file.originalname]
+    );
 
+    // Send notification
+    await addNotificationForPatient(
+      patientId,
+      `A new document "${file.originalname}" has been uploaded to your profile.`
+    );
 
-        res.json({
-            message: 'Attachment uploaded successfully',
-            attachment_id: rows.insertId,
-            file_url: result.secure_url, // this now ends with .pdf if original filename had it
-        });
-    } catch (error) {
-        console.error('Upload error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
+    res.json({
+      message: "Attachment uploaded successfully",
+      attachment_id: rows.insertId,
+      file_url: result.secure_url, // this now ends with .pdf if original filename had it
+    });
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
-
-
 
 export const getPatientAttachments = async (req, res) => {
-    const patientId = req.params.id;
+  const patientId = req.params.id;
 
-    try {
-        const [rows] = await pool.query(
-            'SELECT * FROM patient_attachments WHERE patient_id = ? ORDER BY uploaded_at DESC',
-            [patientId]
-        );
-        res.json(rows);
-    } catch (error) {
-        console.error('Error fetching attachments:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
+  try {
+    const [rows] = await pool.query(`
+      SELECT 
+        pa.*, 
+        d.first_name AS doctor_first_name, 
+        d.last_name AS doctor_last_name 
+      FROM patient_attachments pa
+      LEFT JOIN doctors d ON pa.uploaded_by_doctor_id = d.doctor_id
+      WHERE pa.patient_id = ?
+      ORDER BY pa.uploaded_at DESC
+    `, [patientId]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching attachments:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
+
 
 // MODIFIED: getFile to return public_id and file_name
 export const getFile = async (req, res) => {
-    const attachmentId = req.params.attachmentId;
-    try {
-        const [rows] = await pool.query(
-            'SELECT file_path, public_id, file_name FROM patient_attachments WHERE attachment_id = ?',
-            [attachmentId]
-        );
+  const attachmentId = req.params.attachmentId;
+  try {
+    const [rows] = await pool.query(
+      "SELECT file_path, public_id, file_name FROM patient_attachments WHERE attachment_id = ?",
+      [attachmentId]
+    );
 
-        if (!rows.length) {
-            return res.status(404).json({ message: 'File not found' });
-        }
-
-        const attachment = rows[0]; // Get the full attachment object
-
-        res.json({
-            file_url: attachment.file_path,
-            public_id: attachment.public_id,
-            file_name: attachment.file_name // The original filename
-        });
-    } catch (error) {
-        console.error('Error fetching file details:', error);
-        res.status(500).json({ message: 'Internal server error' });
+    if (!rows.length) {
+      return res.status(404).json({ message: "File not found" });
     }
+
+    const attachment = rows[0]; // Get the full attachment object
+
+    res.json({
+      file_url: attachment.file_path,
+      public_id: attachment.public_id,
+      file_name: attachment.file_name, // The original filename
+    });
+  } catch (error) {
+    console.error("Error fetching file details:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const deletePatientAttachmentByPatient = async (req, res) => {
-    const { id: patientId, attachmentId } = req.params;
+  const { id: patientId, attachmentId } = req.params;
 
-    try {
-        // Get the attachment details including public_id for Cloudinary deletion
-        const [rows] = await pool.query(
-            'SELECT public_id FROM patient_attachments WHERE attachment_id = ? AND patient_id = ?',
-            [attachmentId, patientId]
-        );
+  try {
+    // Get the attachment details including public_id for Cloudinary deletion
+    const [rows] = await pool.query(
+      "SELECT public_id FROM patient_attachments WHERE attachment_id = ? AND patient_id = ?",
+      [attachmentId, patientId]
+    );
 
-        if (!rows.length) {
-            return res.status(404).json({ message: 'Attachment not found for this patient' });
-        }
-
-        const { public_id } = rows[0];
-
-        // Delete from Cloudinary
-        try {
-            await cloudinary.uploader.destroy(public_id);
-            // console.log(`File deleted from Cloudinary: ${public_id}`);
-        } catch (cloudinaryError) {
-            console.error('Cloudinary deletion error:', cloudinaryError);
-            // Continue with database deletion even if Cloudinary deletion fails
-        }
-
-        // Delete from database
-        const [deleteResult] = await pool.query(
-            'DELETE FROM patient_attachments WHERE attachment_id = ? AND patient_id = ?',
-            [attachmentId, patientId]
-        );
-
-        if (deleteResult.affectedRows === 0) {
-            return res.status(404).json({ message: 'Attachment not found for this patient' });
-        }
-
-        res.json({
-            message: 'Attachment deleted successfully',
-            attachment_id: attachmentId,
-            patient_id: patientId
-        });
-
-    } catch (error) {
-        console.error('Delete attachment error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+    if (!rows.length) {
+      return res
+        .status(404)
+        .json({ message: "Attachment not found for this patient" });
     }
+
+    const { public_id } = rows[0];
+
+    // Delete from Cloudinary
+    try {
+      await cloudinary.uploader.destroy(public_id);
+      // console.log(`File deleted from Cloudinary: ${public_id}`);
+    } catch (cloudinaryError) {
+      console.error("Cloudinary deletion error:", cloudinaryError);
+      // Continue with database deletion even if Cloudinary deletion fails
+    }
+
+    // Delete from database
+    const [deleteResult] = await pool.query(
+      "DELETE FROM patient_attachments WHERE attachment_id = ? AND patient_id = ?",
+      [attachmentId, patientId]
+    );
+
+    if (deleteResult.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: "Attachment not found for this patient" });
+    }
+
+    res.json({
+      message: "Attachment deleted successfully",
+      attachment_id: attachmentId,
+      patient_id: patientId,
+    });
+  } catch (error) {
+    console.error("Delete attachment error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const addNotificationForPatient = async (patientId, message) => {
+  try {
+    await pool.query(
+      "INSERT INTO notifications (patient_id, message, created_at) VALUES (?, ?, NOW())",
+      [patientId, message]
+    );
+  } catch (error) {
+    console.error("Error adding notification:", error);
+    // Optional: you might choose not to throw to avoid breaking upload flow
+  }
+};
+
+export const getPatientNotifications = async (req, res) => {
+  const { id: patientId } = req.params;
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM notifications WHERE patient_id = ? ORDER BY created_at DESC",
+      [patientId]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };

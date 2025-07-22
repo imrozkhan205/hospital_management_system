@@ -128,6 +128,7 @@ const cancelLogout = () => {
                     <Route path="/appointments" element={<Appointments authUser={authUser} />} /> {/* Pass authUser */}
                     <Route path="/patients" element={<Patients authUser={authUser} />} /> {/* Pass authUser, potentially for doctor's patients */}
                     <Route path="/appointments/add" element={<AddAppointment />} />
+                    <Route path="/patients/add" element={<AddPatient />} />
                   </>
                 )}
 

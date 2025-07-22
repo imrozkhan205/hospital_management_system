@@ -102,13 +102,34 @@ const Sidebar = ({ authUserRole, collapsed, setCollapsed, handleLogout }) => {
         <button
           onClick={handleLogout}
           className={`
-    flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-md mt-auto transition duration-200 shadow-sm
+    className=
+            group relative
+            flex items-center gap-2
+            px-4 py-2.5 sm:px-5 sm:py-3
+            rounded-xl
+            bg-gradient-to-r from-red-50 to-pink-50
+            border border-red-200/50
+            text-red-700
+            font-semibold
+            hover:from-red-100 hover:to-pink-100
+            hover:border-red-300/50
+            hover:text-red-800
+            active:from-red-200 active:to-pink-200
+            transition-all duration-200 ease-in-out
+            focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:ring-offset-2
+            shadow-sm hover:shadow-md
+            text-sm sm:text-base
+            transform hover:scale-[1.02] active:scale-[0.98]
     ${
       collapsed ? "w-auto justify-center" : "w-1/2"
     }
   `}
         >
-          <LogOutIcon size={18} />
+          <LogOut className="
+            w-4 h-4 sm:w-5 sm:h-5
+            transition-transform duration-200
+            group-hover:rotate-12
+          " />
           {!collapsed && <span>Logout</span>}
         </button>
       </div>
