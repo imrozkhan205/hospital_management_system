@@ -145,7 +145,9 @@ const cancelLogout = () => {
                 {/* Catch-all route for authenticated users, redirects to dashboard */}
                 <Route path="*" element={<Navigate to="/dashboard" />} />
               </Routes>
+              
             </main>
+            <div className='bg-gray-50  flex text-xs font-bold items-center justify-center'>Made with ❤️ by  <span className='text-purple-700 p-2 pl-1'> Imroz</span> </div>
           </div>
         </div>
       ) : (
