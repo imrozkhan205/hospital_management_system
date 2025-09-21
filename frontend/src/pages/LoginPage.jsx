@@ -46,7 +46,8 @@ const LoginPage = ({ setAuthUser }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Username<span className='pl-10 opacity-40'>Demo username: demo</span>
+</label>
             <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-400">
               <User className="text-gray-500 mr-2" size={18} />
               <input
@@ -61,7 +62,7 @@ const LoginPage = ({ setAuthUser }) => {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password <span className='pl-10 opacity-40'>Demo password: demo</span></label>
             <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-400">
               <Lock className="text-gray-500 mr-2" size={18} />
               <input
