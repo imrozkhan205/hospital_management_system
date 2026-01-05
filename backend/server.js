@@ -19,8 +19,8 @@ app.use(express.json());
 
 const allowedOrigins = process.env.NODE_ENV === 'production' 
   ? [
-      'https://hospitalmanagementsystem-imroz.netlify.app/',
-      'https://hospitalmanagementsystem-imroz.netlify.app/'  // if you use www
+      'https://hospital-management-system-46dx.onrender.com',
+      'https://hospital-management-system-46dx.onrender.com'  // if you use www
     ]
   : [
       'http://localhost:5173',    // Vite dev server
