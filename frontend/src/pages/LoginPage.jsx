@@ -25,6 +25,7 @@ const LoginPage = ({ setAuthUser }) => {
       localStorage.setItem('token', token);
       localStorage.setItem('role', normalizedRole);
       localStorage.setItem('username', username);
+      localStorage.setItem('login_timestamp', Date.now().toString());
       if (linked_doctor_id) localStorage.setItem('linked_doctor_id', linked_doctor_id);
       if (linked_patient_id) localStorage.setItem('linked_patient_id', linked_patient_id);
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;

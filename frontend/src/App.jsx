@@ -1,5 +1,5 @@
 // src/App.js
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import LoginPage from './pages/LoginPage';
@@ -23,13 +23,29 @@ import AppointmentAvailability from './pages/AppointmentAvailablity';
 import LogoutConfirm from './components/Logout';
 import NotificationsPage from './pages/NotificationsPage';
 
+const MAX_SESSION_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+
 
 function App() {
   // authUser now stores { role: 'admin', id: 'someId' } etc.
   const [authUser, setAuthUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
+
+  const performLogout = useCallback((message = 'Logged out successfully!', type = 'success') => {
+    localStorage.clear();
+    delete axiosInstance.defaults.headers.common['Authorization'];
+    setAuthUser(null);
+    if (type === 'error') {
+      toast.error(message);
+    } else {
+      toast.success(message);
+    }
+    navigate('/login');
+    setShowLogoutConfirm(false);
+  }, [navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -37,6 +53,21 @@ function App() {
     // Get the linked_id from localStorage based on role
     const linkedDoctorId = localStorage.getItem('linked_doctor_id');
     const linkedPatientId = localStorage.getItem('linked_patient_id');
+    const loginTimestamp = localStorage.getItem('login_timestamp');
+    const now = Date.now();
+
+    if (token && role && loginTimestamp) {
+      const elapsed = now - Number(loginTimestamp);
+      if (elapsed >= MAX_SESSION_DURATION) {
+        performLogout('Session expired after 4 hours. Please log in again.', 'error');
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (token && role && !loginTimestamp) {
+      localStorage.setItem('login_timestamp', now.toString());
+    }
 
     console.log('App.js useEffect: Checking auth status...');
     console.log('   Token found:', !!token);
@@ -57,21 +88,32 @@ function App() {
       setAuthUser(null);
     }
     setLoading(false);
-  }, []);
+  }, [performLogout]);
 
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  useEffect(() => {
+    if (!authUser) return;
+
+    const checkSessionExpiry = () => {
+      const timestamp = localStorage.getItem('login_timestamp');
+      if (!timestamp) return;
+      const elapsed = Date.now() - Number(timestamp);
+      if (elapsed >= MAX_SESSION_DURATION) {
+        performLogout('Session expired after 4 hours. Please log in again.', 'error');
+      }
+    };
+
+    checkSessionExpiry();
+    const intervalId = setInterval(checkSessionExpiry, 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [authUser, performLogout]);
 
 const handleLogout = () => {
   setShowLogoutConfirm(true);
 };
 
 const confirmLogout = () => {
-  localStorage.clear();
-  delete axiosInstance.defaults.headers.common['Authorization'];
-  setAuthUser(null);
-  toast.success('Logged out successfully!');
-  navigate('/login');
-  setShowLogoutConfirm(false);
+  performLogout();
 };
 
 const cancelLogout = () => {
