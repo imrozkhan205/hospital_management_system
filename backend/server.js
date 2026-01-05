@@ -2,7 +2,6 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import path from 'path';
-import pool from './config/db.js';
 import authRoutes from './routes/auth.route.js'
 import doctorRoutes from './routes/doctor.route.js'
 import patientRoutes from './routes/patient.route.js'
@@ -15,17 +14,6 @@ import notificationRoutes from './routes/notifications.route.js'
 
 dotenv.config();
 const app = express()
-
-// Log environment variables (safely)
-console.log('=== ENVIRONMENT CHECK ===');
-console.log('NODE_ENV:', process.env.NODE_ENV || 'not set');
-console.log('PORT:', process.env.PORT || 'not set');
-console.log('DB_HOST:', process.env.DB_HOST ? '✓ set' : '✗ NOT SET');
-console.log('DB_USER:', process.env.DB_USER ? '✓ set' : '✗ NOT SET');
-console.log('DB_PASS:', process.env.DB_PASS ? '✓ set' : '✗ NOT SET');
-console.log('DB_NAME:', process.env.DB_NAME ? '✓ set' : '✗ NOT SET');
-console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✓ set' : '✗ NOT SET');
-console.log('======================');
 
 // Basic middleware
 app.use(express.json());
@@ -80,23 +68,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 10000;
-
-// Test database connection before starting server
-pool.getConnection()
-  .then(connection => {
-    console.log('✅ Database connected successfully');
-    connection.release();
-    
-    // Start server only after DB connection is confirmed
-    app.listen(PORT, () => {
-      console.log(`✅ Server is running on PORT ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`Allowed origins:`, allowedOrigins);
-    });
-  })
-  .catch(err => {
-    console.error('❌ Database connection failed:', err.message);
-    console.error('Full error:', err);
-    console.error('Cannot start server without database connection');
-    process.exit(1);
-  });
+app.listen(PORT, () => {
+    console.log(`Server is running on PORT ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Allowed origins:`, allowedOrigins);
+})
