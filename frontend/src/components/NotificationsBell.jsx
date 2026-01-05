@@ -14,7 +14,7 @@ export default function NotificationsBell() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axiosInstance.get(`/notifications/${userId}`);
+        const res = await axiosInstance.get(`/api/notifications/${userId}`);
         setNotifications(res.data);
       } catch (error) {
         console.error("Failed to fetch notifications", error);
@@ -41,7 +41,7 @@ export default function NotificationsBell() {
 
   const handleViewAll = async () => {
     try {
-      await axiosInstance.put(`/notifications/mark-all-read/${userId}`);
+      await axiosInstance.put(`/api/notifications/mark-all-read/${userId}`);
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (error) {
       console.error("Failed to mark notifications as read", error);

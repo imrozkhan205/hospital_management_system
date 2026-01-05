@@ -26,7 +26,7 @@ const [showConfirmModal, setShowConfirmModal] = useState(false);
   useEffect(() => {
     const fetchDoctorInfo = async () => {
       try {
-        const res = await axiosInstance.get(`/doctors/${doctorId}`);
+        const res = await axiosInstance.get(`/api/doctors/${doctorId}`);
         setDoctorInfo({
           name: `Dr. ${res.data.first_name} ${res.data.last_name}`,
           specialization: res.data.specialization,
@@ -74,7 +74,7 @@ const [showConfirmModal, setShowConfirmModal] = useState(false);
         setError(null);
 
         const res = await axiosInstance.get(
-          `/appointments/doctor/${doctorId}?date=${selectedDate}`
+          `/api/appointments/doctor/${doctorId}?date=${selectedDate}`
         );
         const appointments = Array.isArray(res.data) ? res.data : [];
         const bookedTimes = appointments.map((a) =>
@@ -102,7 +102,7 @@ const [showConfirmModal, setShowConfirmModal] = useState(false);
   const handleBookAppointment = async (time) => {
   try {
     await axiosInstance.post(
-      "/appointments/simple",
+      "/api/appointments/simple",
       {
         doctor_id: doctorId,
         date: selectedDate,
@@ -122,7 +122,7 @@ const [showConfirmModal, setShowConfirmModal] = useState(false);
       doctorInfo.available_to
     );
     const res = await axiosInstance.get(
-      `/appointments/doctor/${doctorId}?date=${selectedDate}`
+      `/api/appointments/doctor/${doctorId}?date=${selectedDate}`
     );
     const appointments = Array.isArray(res.data) ? res.data : [];
     const bookedTimes = appointments.map((a) =>

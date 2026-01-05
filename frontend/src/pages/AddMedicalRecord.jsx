@@ -24,8 +24,8 @@ const AddMedicalRecord = () => {
     const fetchData = async () => {
       try {
         const [patientsRes, doctorsRes] = await Promise.all([
-          axiosInstance.get("/patients"),
-          axiosInstance.get("/doctors"),
+          axiosInstance.get("/api/patients"),
+          axiosInstance.get("/api/doctors"),
         ]);
         setPatients(patientsRes.data);
         setDoctors(doctorsRes.data);
@@ -47,7 +47,7 @@ const AddMedicalRecord = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post("/medical-records", formData);
+      await axiosInstance.post("/api/medical-records", formData);
       toast.success("Medical record added successfully");
       navigate("/medical-records");
     } catch (err) {

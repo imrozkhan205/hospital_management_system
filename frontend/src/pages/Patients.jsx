@@ -20,9 +20,9 @@ const Patients = () => {
       let res;
       if (role === "doctor") {
         const doctorId = localStorage.getItem("linked_doctor_id");
-        res = await axiosInstance.get(`/doctors/${doctorId}/patients`);
+        res = await axiosInstance.get(`/api/doctors/${doctorId}/patients`);
       } else {
-        res = await axiosInstance.get("/patients");
+        res = await axiosInstance.get("/api/patients");
       }
 
       setPatients(res.data);
@@ -33,7 +33,7 @@ const Patients = () => {
         res.data.map(async (patient) => {
           try {
             const attachRes = await axiosInstance.get(
-              `/patients/${patient.patient_id}/attachments`
+              `/api/patients/${patient.patient_id}/attachments`
             );
             attachmentsObj[patient.patient_id] = attachRes.data;
           } catch (err) {
@@ -53,7 +53,7 @@ const Patients = () => {
     if (!window.confirm("Are you sure you want to delete this patient?"))
       return;
     try {
-      await axiosInstance.delete(`/patients/${id}`);
+      await axiosInstance.delete(`/api/patients/${id}`);
       toast.success("Patient deleted");
       setPatients((prev) => prev.filter((p) => p.patient_id !== id));
     } catch (err) {
@@ -70,7 +70,7 @@ const Patients = () => {
     formData.append("file", file);
 
     try {
-      await axiosInstance.post(`/patients/${patientId}/attachment`, formData, {
+      await axiosInstance.post(`/api/patients/${patientId}/attachment`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Attachment uploaded");
@@ -90,7 +90,7 @@ const Patients = () => {
     if (!window.confirm("Are you sure you want to delete this attachment?")) return;
     
     try {
-      await axiosInstance.delete(`/patients/${patientId}/attachments/${attachmentId}`);
+      await axiosInstance.delete(`/api/patients/${patientId}/attachments/${attachmentId}`);
       toast.success("Attachment deleted");
       fetchPatients(); // refresh the list
     } catch (error) {

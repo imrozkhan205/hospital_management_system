@@ -38,7 +38,7 @@ const AddPatient = () => {
     e.preventDefault();
     try {
       console.log("Form data being sent:", formData);
-      const response = await axiosInstance.post("/patients", formData); // Ensure your backend /patients endpoint handles username/password
+      const response = await axiosInstance.post("/api/patients", formData); // Ensure your backend /patients endpoint handles username/password
       console.log("Response:", response.data);
       toast.success("Patient added successfully with login credentials"); // Updated toast message
       navigate("/patients");

@@ -19,10 +19,10 @@ const Dashboard = () => {
       try {
         setLoading(true);
         const [p, d, a, r] = await Promise.all([
-          axiosInstance.get('/patients'),
-          axiosInstance.get('/doctors'),
-          axiosInstance.get('/appointments'),
-          axiosInstance.get('/medical-records'),
+          axiosInstance.get('/api/patients'),
+          axiosInstance.get('/api/doctors'),
+          axiosInstance.get('/api/appointments'),
+          axiosInstance.get('/api/medical-records'),
         ]);
         setPatients(p.data);
         setDoctors(d.data);

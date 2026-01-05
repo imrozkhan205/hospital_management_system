@@ -9,7 +9,7 @@ const NotificationsPage = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axiosInstance.get(`/notifications/${userId}`);
+        const res = await axiosInstance.get(`/api/notifications/${userId}`);
         setNotifications(res.data);
       } catch (error) {
         console.error("Failed to fetch notifications", error);

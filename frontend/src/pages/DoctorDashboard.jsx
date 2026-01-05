@@ -11,7 +11,7 @@ const DoctorDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axiosInstance.get(`/doctors/${doctorId}/stats`);
+        const res = await axiosInstance.get(`/api/doctors/${doctorId}/stats`);
         setStats(res.data);
       } catch (err) {
         console.error("Error fetching stats", err);

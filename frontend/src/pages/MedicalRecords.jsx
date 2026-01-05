@@ -10,7 +10,7 @@ const MedicalRecords = () => {
 
   const fetchRecords = async () => {
     try {
-      const res = await axiosInstance.get("/medical-records");
+      const res = await axiosInstance.get("/api/medical-records");
       setRecords(res.data);
     } catch (error) {
       toast.error("Failed to fetch records");
@@ -23,7 +23,7 @@ const MedicalRecords = () => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
 
     try {
-      await axiosInstance.delete(`/medical-records/${id}`);
+      await axiosInstance.delete(`/api/medical-records/${id}`);
       toast.success("Record deleted");
       setRecords(records.filter((r) => r.record_id !== id));
     } catch (error) {

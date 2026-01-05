@@ -15,7 +15,7 @@ const Departments = () => {
 
   const fetchDepartments = async () => {
     try {
-      const res = await axiosInstance.get("/departments");
+      const res = await axiosInstance.get("/api/departments");
       setDepartments(res.data);
     } catch (err) {
       toast.error("Failed to fetch departments");
@@ -33,7 +33,7 @@ const Departments = () => {
     if (!department_name) return toast.error("Department name is required");
 
     try {
-      await axiosInstance.post("/departments", {
+      await axiosInstance.post("/api/departments", {
         department_name,
         head_doctor_id: head_doctor_id || null,
         location: location || null,
@@ -55,7 +55,7 @@ const Departments = () => {
     if (!window.confirm("Are you sure you want to delete this department?")) return;
 
     try {
-      await axiosInstance.delete(`/departments/${id}`);
+      await axiosInstance.delete(`/api/departments/${id}`);
       toast.success("Department deleted");
       setDepartments(departments.filter((d) => d.department_id !== id));
     } catch (err) {

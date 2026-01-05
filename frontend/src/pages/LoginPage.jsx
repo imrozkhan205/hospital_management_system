@@ -19,7 +19,7 @@ const LoginPage = ({ setAuthUser }) => {
     }
     setLoading(true);
     try {
-      const res = await axiosInstance.post('/auth/login', { username, password });
+      const res = await axiosInstance.post('/api/auth/login', { username, password });
       const { token, role, linked_doctor_id, linked_patient_id } = res.data;
       const normalizedRole = role?.toLowerCase();
       localStorage.setItem('token', token);

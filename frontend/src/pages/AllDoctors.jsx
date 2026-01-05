@@ -16,12 +16,12 @@ const AllDoctors = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resDoctors = await axiosInstance.get("/doctors");
+        const resDoctors = await axiosInstance.get("/api/doctors");
         setDoctors(resDoctors.data);
         setFilteredDoctors(resDoctors.data);
 
         // Fetch patient documents
-        const resDocs = await axiosInstance.get(`/patients/${patientId}/attachments`);
+        const resDocs = await axiosInstance.get(`/api/patients/${patientId}/attachments`);
         setPatientDocuments(resDocs.data);
       } catch (error) {
         console.error("Failed to fetch data", error);

@@ -16,10 +16,10 @@ const Doctors = ({ authUser }) => {
       let res;
       if (authUser?.role === "admin") {
         // Admin: Fetch all doctors
-        res = await axiosInstance.get("/doctors");
+        res = await axiosInstance.get("/api/doctors");
       } else if (authUser?.role === "patient") {
         if (authUser.id) {
-          res = await axiosInstance.get(`/patients/${authUser.id}/doctors`);
+          res = await axiosInstance.get(`/api/patients/${authUser.id}/doctors`);
         } else {
           setDoctors([]);
           setLoading(false);
@@ -59,7 +59,7 @@ const Doctors = ({ authUser }) => {
     }
 
     try {
-      await axiosInstance.delete(`/doctors/${id}`);
+      await axiosInstance.delete(`/api/doctors/${id}`);
       toast.success("Doctor deleted successfully!");
       setDoctors(doctors.filter((doc) => doc.doctor_id !== id));
     } catch (err) {

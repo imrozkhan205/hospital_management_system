@@ -30,8 +30,8 @@ const AddAppointment = () => {
       try {
         if (role === "admin") {
           const [patientRes, doctorRes] = await Promise.all([
-            axiosInstance.get("/patients"),
-            axiosInstance.get("/doctors"),
+            axiosInstance.get("/api/patients"),
+            axiosInstance.get("/api/doctors"),
           ]);
           setPatients(patientRes.data);
           setDoctors(doctorRes.data);
@@ -39,8 +39,8 @@ const AddAppointment = () => {
           const doctorId = Number(localStorage.getItem("linked_doctor_id"));
           setFormData((prev) => ({ ...prev, doctor_id: doctorId })); // set own doctor_id
           const [patientRes, doctorRes] = await Promise.all([
-            axiosInstance.get(`/doctors/${doctorId}/patients`),
-            axiosInstance.get(`/doctors/${doctorId}`), // get doctor details
+            axiosInstance.get(`/api/doctors/${doctorId}/patients`),
+            axiosInstance.get(`/api/doctors/${doctorId}`), // get doctor details
           ]);
           setPatients(patientRes.data);
           setDoctors([doctorRes.data]); // put single doctor in array for consistency
@@ -116,7 +116,7 @@ const handleTimeSlotChange = (selectedTime) => {
         doctor_id: Number(formData.doctor_id),
         duration_minutes: Number(formData.duration_minutes) || 30, // default if empty
       };
-      await axiosInstance.post("/appointments", preparedData);
+      await axiosInstance.post("/api/appointments", preparedData);
       toast.success("Appointment added successfully");
       navigate("/appointments");
     } catch (error) {

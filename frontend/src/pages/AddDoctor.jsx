@@ -22,7 +22,7 @@ const AddDoctor = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post("/doctors", form);
+      await axiosInstance.post("/api/doctors", form);
       toast.success("Doctor created with login");
       navigate("/doctors");
     } catch (err) {

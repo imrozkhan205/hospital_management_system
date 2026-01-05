@@ -24,7 +24,7 @@ const Appointments = () => {
     );
 
     try {
-      await axiosInstance.put(`/appointments/${appointmentId}/status`, { status: newStatus });
+      await axiosInstance.put(`/api/appointments/${appointmentId}/status`, { status: newStatus });
       toast.success("Status updated");
     } catch (error) {
       setAppointments(prev =>
@@ -41,12 +41,12 @@ const Appointments = () => {
       let res;
       if (role === "doctor") {
         const doctorId = localStorage.getItem("linked_doctor_id");
-        res = await axiosInstance.get(`/appointments/doctors/${doctorId}/appointments`);
+        res = await axiosInstance.get(`/api/appointments/doctors/${doctorId}/appointments`);
       } else if (role === "patient") {
         const patientId = localStorage.getItem("linked_patient_id");
-        res = await axiosInstance.get(`/appointments/patients/${patientId}/appointments`);
+        res = await axiosInstance.get(`/api/appointments/patients/${patientId}/appointments`);
       } else {
-        res = await axiosInstance.get("/appointments"); // admin
+        res = await axiosInstance.get("/api/appointments"); // admin
       }
       setAppointments(res.data);
     } catch (error) {
@@ -59,7 +59,7 @@ const Appointments = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this appointment?")) return;
     try {
-      await axiosInstance.delete(`/appointments/${id}`);
+      await axiosInstance.delete(`/api/appointments/${id}`);
       toast.success("Appointment deleted");
       setAppointments(prev => prev.filter(appt => appt.appointment_id !== id));
     } catch (error) {
