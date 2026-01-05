@@ -14,26 +14,39 @@ import notificationRoutes from './routes/notifications.route.js'
 
 dotenv.config();
 const app = express()
-app.use(cors());
+
+// Basic middleware
 app.use(express.json());
 
+// CORS configuration - FIXED
 const allowedOrigins = process.env.NODE_ENV === 'production' 
   ? [
       'https://hospital-management-system-46dx.onrender.com',
-      'https://hospital-management-system-46dx.onrender.com'  // if you use www
+      'https://www.hospital-management-system-46dx.onrender.com'
     ]
   : [
-      'http://localhost:5173',    // Vite dev server
-      'http://localhost:3000',    // if you use different port
-      'http://127.0.0.1:5173'     // alternative localhost
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173'
     ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/patients', patientRoutes)
@@ -44,7 +57,19 @@ app.use('/api/medical-records', medicalRecordsRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-const PORT = process.env.PORT;
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(500).json({ 
+    message: 'Internal server error', 
+    error: process.env.NODE_ENV === 'development' ? err.message : 'An error occurred'
+  });
+});
+
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Allowed origins:`, allowedOrigins);
 })
